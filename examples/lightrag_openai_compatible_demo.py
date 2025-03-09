@@ -5,23 +5,25 @@ from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 from lightrag.kg.shared_storage import initialize_pipeline_status
+from lightrag.utils import setup_logger
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "./ZGF_Family_Letters"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
+setup_logger("lightrag", level="INFO", log_file_path=f"{WORKING_DIR}/lightrag.log")
 
 async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
+    prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:
     return await openai_complete_if_cache(
-        "solar-mini",
+        "gpt-4o-mini",
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
-        api_key=os.getenv("UPSTAGE_API_KEY"),
-        base_url="https://api.upstage.ai/v1/solar",
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        base_url=os.environ.get("OPENAI_API_BASE"),
         **kwargs,
     )
 
@@ -29,9 +31,9 @@ async def llm_model_func(
 async def embedding_func(texts: list[str]) -> np.ndarray:
     return await openai_embed(
         texts,
-        model="solar-embedding-1-large-query",
-        api_key=os.getenv("UPSTAGE_API_KEY"),
-        base_url="https://api.upstage.ai/v1/solar",
+        model="text-embedding-3-small",
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        base_url=os.environ.get("OPENAI_API_BASE"),
     )
 
 
@@ -42,16 +44,12 @@ async def get_embedding_dim():
     return embedding_dim
 
 
-# function test
 async def test_funcs():
     result = await llm_model_func("How are you?")
     print("llm_model_func: ", result)
 
     result = await embedding_func(["How are you?"])
     print("embedding_func: ", result)
-
-
-# asyncio.run(test_funcs())
 
 
 async def initialize_rag():
@@ -79,7 +77,7 @@ async def main():
         # Initialize RAG instance
         rag = await initialize_rag()
 
-        with open("./book.txt", "r", encoding="utf-8") as f:
+        with open("./ZGF_Family_Letters.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
         # Perform naive search
