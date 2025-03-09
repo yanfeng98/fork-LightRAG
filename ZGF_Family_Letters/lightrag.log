@@ -533,3 +533,29 @@
 2025-03-09 18:38:05,734 - lightrag - INFO - Local query uses 60 entites, 104 relations, 3 chunks
 2025-03-09 18:38:13,253 - lightrag - INFO - Inserting 1 to llm_response_cache
 2025-03-09 18:38:13,283 - lightrag - INFO - Storage Finalization completed!
+2025-03-09 22:16:27,854 - lightrag - INFO - Loaded graph from ./ZGF_Family_Letters/graph_chunk_entity_relation.graphml with 1113 nodes, 1086 edges
+2025-03-09 22:16:27,984 - lightrag - INFO - Load KV full_docs with 1 data
+2025-03-09 22:16:27,986 - lightrag - INFO - Load KV text_chunks with 98 data
+2025-03-09 22:16:28,000 - lightrag - INFO - Load KV llm_response_cache with 5 data
+2025-03-09 22:16:28,001 - lightrag - INFO - Loaded document status storage with 1 records
+2025-03-09 22:16:28,008 - lightrag - INFO - No new unique documents were found.
+2025-03-09 22:16:28,008 - lightrag - INFO - Storage Initialization completed!
+2025-03-09 22:16:28,008 - lightrag - INFO - No documents to process
+2025-03-09 22:16:28,008 - lightrag - INFO - Non-embedding cached hit(mode:naive type:query)
+2025-03-09 22:16:28,031 - lightrag - INFO - Non-embedding cached hit(mode:local type:query)
+2025-03-09 22:16:28,062 - lightrag - INFO - Non-embedding cached hit(mode:global type:query)
+2025-03-09 22:16:28,089 - lightrag - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-03-09 22:16:28,116 - lightrag - INFO - Storage Finalization completed!
+2025-03-09 23:27:43,953 - lightrag - INFO - Loaded graph from ./ZGF_Family_Letters/graph_chunk_entity_relation.graphml with 1113 nodes, 1086 edges
+2025-03-09 23:27:44,072 - lightrag - INFO - Load KV full_docs with 1 data
+2025-03-09 23:27:44,073 - lightrag - INFO - Load KV text_chunks with 98 data
+2025-03-09 23:27:44,087 - lightrag - INFO - Load KV llm_response_cache with 5 data
+2025-03-09 23:27:44,088 - lightrag - INFO - Loaded document status storage with 1 records
+2025-03-09 23:27:44,094 - lightrag - INFO - No new unique documents were found.
+2025-03-09 23:27:44,095 - lightrag - INFO - Storage Initialization completed!
+2025-03-09 23:27:44,095 - lightrag - INFO - No documents to process
+2025-03-09 23:27:44,095 - lightrag - INFO - Non-embedding cached hit(mode:naive type:query)
+2025-03-09 23:27:44,119 - lightrag - INFO - Non-embedding cached hit(mode:local type:query)
+2025-03-09 23:27:44,142 - lightrag - INFO - Non-embedding cached hit(mode:global type:query)
+2025-03-09 23:27:44,170 - lightrag - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-03-09 23:27:44,194 - lightrag - INFO - Storage Finalization completed!

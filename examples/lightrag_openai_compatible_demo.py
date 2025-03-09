@@ -1,11 +1,10 @@
 import os
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
-from lightrag.utils import EmbeddingFunc
 import numpy as np
+from lightrag import LightRAG, QueryParam
+from lightrag.utils import EmbeddingFunc, setup_logger
 from lightrag.kg.shared_storage import initialize_pipeline_status
-from lightrag.utils import setup_logger
+from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 
 WORKING_DIR = "./ZGF_Family_Letters"
 
@@ -22,8 +21,8 @@ async def llm_model_func(
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
-        api_key=os.environ.get("OPENAI_API_KEY"),
         base_url=os.environ.get("OPENAI_API_BASE"),
+        api_key=os.environ.get("OPENAI_API_KEY"),
         **kwargs,
     )
 
@@ -32,8 +31,8 @@ async def embedding_func(texts: list[str]) -> np.ndarray:
     return await openai_embed(
         texts,
         model="text-embedding-3-small",
-        api_key=os.environ.get("OPENAI_API_KEY"),
         base_url=os.environ.get("OPENAI_API_BASE"),
+        api_key=os.environ.get("OPENAI_API_KEY"),
     )
 
 

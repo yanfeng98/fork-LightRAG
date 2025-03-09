@@ -132,10 +132,6 @@ def setup_logger(
     # Ensure log directory exists
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
-    # Get log file max size and backup count from environment variables
-    log_max_bytes = int(os.getenv("LOG_MAX_BYTES", 10485760))  # Default 10MB
-    log_backup_count = int(os.getenv("LOG_BACKUP_COUNT", 5))  # Default 5 backups
-
     logger_instance = logging.getLogger(logger_name)
     logger_instance.setLevel(level)
     logger_instance.handlers = []  # Clear existing handlers
@@ -146,6 +142,10 @@ def setup_logger(
     console_handler.setFormatter(simple_formatter)
     console_handler.setLevel(level)
     logger_instance.addHandler(console_handler)
+
+    # Get log file max size and backup count from environment variables
+    log_max_bytes = int(os.getenv("LOG_MAX_BYTES", 10485760))  # Default 10MB
+    log_backup_count = int(os.getenv("LOG_BACKUP_COUNT", 5))  # Default 5 backups
 
     # Add file handler
     file_handler = logging.handlers.RotatingFileHandler(
