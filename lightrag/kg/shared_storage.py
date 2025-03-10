@@ -5,16 +5,6 @@ from multiprocessing.synchronize import Lock as ProcessLock
 from multiprocessing import Manager
 from typing import Any, Dict, Optional, Union, TypeVar, Generic
 
-
-# Define a direct print function for critical logs that must be visible in all processes
-def direct_log(message, level="INFO"):
-    """
-    Log a message directly to stderr to ensure visibility in all processes,
-    including the Gunicorn master process.
-    """
-    print(f"{level}: {message}", file=sys.stderr, flush=True)
-
-
 T = TypeVar("T")
 LockType = Union[ProcessLock, asyncio.Lock]
 
@@ -32,56 +22,6 @@ _update_flags: Optional[Dict[str, bool]] = None  # namespace -> updated
 _storage_lock: Optional[LockType] = None
 _internal_lock: Optional[LockType] = None
 _pipeline_status_lock: Optional[LockType] = None
-
-
-class UnifiedLock(Generic[T]):
-    """Provide a unified lock interface type for asyncio.Lock and multiprocessing.Lock"""
-
-    def __init__(self, lock: Union[ProcessLock, asyncio.Lock], is_async: bool):
-        self._lock = lock
-        self._is_async = is_async
-
-    async def __aenter__(self) -> "UnifiedLock[T]":
-        if self._is_async:
-            await self._lock.acquire()
-        else:
-            self._lock.acquire()
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if self._is_async:
-            self._lock.release()
-        else:
-            self._lock.release()
-
-    def __enter__(self) -> "UnifiedLock[T]":
-        """For backward compatibility"""
-        if self._is_async:
-            raise RuntimeError("Use 'async with' for shared_storage lock")
-        self._lock.acquire()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """For backward compatibility"""
-        if self._is_async:
-            raise RuntimeError("Use 'async with' for shared_storage lock")
-        self._lock.release()
-
-
-def get_internal_lock() -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    return UnifiedLock(lock=_internal_lock, is_async=not is_multiprocess)
-
-
-def get_storage_lock() -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    return UnifiedLock(lock=_storage_lock, is_async=not is_multiprocess)
-
-
-def get_pipeline_status_lock() -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    return UnifiedLock(lock=_pipeline_status_lock, is_async=not is_multiprocess)
-
 
 def initialize_share_data(workers: int = 1):
     """
@@ -147,6 +87,61 @@ def initialize_share_data(workers: int = 1):
     # Mark as initialized
     _initialized = True
 
+# Define a direct print function for critical logs that must be visible in all processes
+def direct_log(message, level="INFO"):
+    """
+    Log a message directly to stderr to ensure visibility in all processes,
+    including the Gunicorn master process.
+    """
+    print(f"{level}: {message}", file=sys.stderr, flush=True)
+
+class UnifiedLock(Generic[T]):
+    """Provide a unified lock interface type for asyncio.Lock and multiprocessing.Lock"""
+
+    def __init__(self, lock: Union[ProcessLock, asyncio.Lock], is_async: bool):
+        self._lock = lock
+        self._is_async = is_async
+
+    async def __aenter__(self) -> "UnifiedLock[T]":
+        if self._is_async:
+            await self._lock.acquire()
+        else:
+            self._lock.acquire()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self._is_async:
+            self._lock.release()
+        else:
+            self._lock.release()
+
+    def __enter__(self) -> "UnifiedLock[T]":
+        """For backward compatibility"""
+        if self._is_async:
+            raise RuntimeError("Use 'async with' for shared_storage lock")
+        self._lock.acquire()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """For backward compatibility"""
+        if self._is_async:
+            raise RuntimeError("Use 'async with' for shared_storage lock")
+        self._lock.release()
+
+
+def get_internal_lock() -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    return UnifiedLock(lock=_internal_lock, is_async=not is_multiprocess)
+
+
+def get_storage_lock() -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    return UnifiedLock(lock=_storage_lock, is_async=not is_multiprocess)
+
+
+def get_pipeline_status_lock() -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    return UnifiedLock(lock=_pipeline_status_lock, is_async=not is_multiprocess)
 
 async def initialize_pipeline_status():
     """

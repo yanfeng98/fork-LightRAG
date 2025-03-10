@@ -8,9 +8,6 @@ from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 
 WORKING_DIR = "./ZGF_Family_Letters"
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
 setup_logger("lightrag", level="INFO", log_file_path=f"{WORKING_DIR}/lightrag.log")
 
 async def llm_model_func(
@@ -79,27 +76,27 @@ async def main():
         with open("./ZGF_Family_Letters.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
-        # Perform naive search
-        print(
-            await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="naive")
-            )
-        )
+        # # Perform naive search
+        # print(
+        #     await rag.aquery(
+        #         "What are the top themes in this story?", param=QueryParam(mode="naive")
+        #     )
+        # )
 
-        # Perform local search
-        print(
-            await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="local")
-            )
-        )
+        # # Perform local search
+        # print(
+        #     await rag.aquery(
+        #         "What are the top themes in this story?", param=QueryParam(mode="local")
+        #     )
+        # )
 
-        # Perform global search
-        print(
-            await rag.aquery(
-                "What are the top themes in this story?",
-                param=QueryParam(mode="global"),
-            )
-        )
+        # # Perform global search
+        # print(
+        #     await rag.aquery(
+        #         "What are the top themes in this story?",
+        #         param=QueryParam(mode="global"),
+        #     )
+        # )
 
         # Perform hybrid search
         print(

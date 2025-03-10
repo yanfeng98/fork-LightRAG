@@ -583,20 +583,6 @@ class MongoGraphStorage(BaseGraphStorage):
 
     #
     # -------------------------------------------------------------------------
-    # EMBEDDINGS (NOT IMPLEMENTED)
-    # -------------------------------------------------------------------------
-    #
-
-    async def embed_nodes(
-        self, algorithm: str
-    ) -> tuple[np.ndarray[Any, Any], list[str]]:
-        """
-        Placeholder for demonstration, raises NotImplementedError.
-        """
-        raise NotImplementedError("Node embedding is not used in lightrag.")
-
-    #
-    # -------------------------------------------------------------------------
     # QUERY
     # -------------------------------------------------------------------------
     #

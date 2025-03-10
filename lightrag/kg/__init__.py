@@ -1,53 +1,3 @@
-STORAGE_IMPLEMENTATIONS = {
-    "KV_STORAGE": {
-        "implementations": [
-            "JsonKVStorage",
-            "MongoKVStorage",
-            "RedisKVStorage",
-            "TiDBKVStorage",
-            "PGKVStorage",
-            "OracleKVStorage",
-        ],
-        "required_methods": ["get_by_id", "upsert"],
-    },
-    "GRAPH_STORAGE": {
-        "implementations": [
-            "NetworkXStorage",
-            "Neo4JStorage",
-            "MongoGraphStorage",
-            "TiDBGraphStorage",
-            "AGEStorage",
-            "GremlinStorage",
-            "PGGraphStorage",
-            "OracleGraphStorage",
-        ],
-        "required_methods": ["upsert_node", "upsert_edge"],
-    },
-    "VECTOR_STORAGE": {
-        "implementations": [
-            "NanoVectorDBStorage",
-            "MilvusVectorDBStorage",
-            "ChromaVectorDBStorage",
-            "TiDBVectorDBStorage",
-            "PGVectorStorage",
-            "FaissVectorDBStorage",
-            "QdrantVectorDBStorage",
-            "OracleVectorDBStorage",
-            "MongoVectorDBStorage",
-        ],
-        "required_methods": ["query", "upsert"],
-    },
-    "DOC_STATUS_STORAGE": {
-        "implementations": [
-            "JsonDocStatusStorage",
-            "PGDocStatusStorage",
-            "PGDocStatusStorage",
-            "MongoDocStatusStorage",
-        ],
-        "required_methods": ["get_docs_by_status"],
-    },
-}
-
 # Storage implementation environment variable without default value
 STORAGE_ENV_REQUIREMENTS: dict[str, list[str]] = {
     # KV Storage Implementations
@@ -155,3 +105,53 @@ def verify_storage_implementation(storage_type: str, storage_name: str) -> None:
             f"Storage implementation '{storage_name}' is not compatible with {storage_type}. "
             f"Compatible implementations are: {', '.join(storage_info['implementations'])}"
         )
+
+STORAGE_IMPLEMENTATIONS = {
+    "KV_STORAGE": {
+        "implementations": [
+            "JsonKVStorage",
+            "MongoKVStorage",
+            "RedisKVStorage",
+            "TiDBKVStorage",
+            "PGKVStorage",
+            "OracleKVStorage",
+        ],
+        "required_methods": ["get_by_id", "upsert"],
+    },
+    "GRAPH_STORAGE": {
+        "implementations": [
+            "NetworkXStorage",
+            "Neo4JStorage",
+            "MongoGraphStorage",
+            "TiDBGraphStorage",
+            "AGEStorage",
+            "GremlinStorage",
+            "PGGraphStorage",
+            "OracleGraphStorage",
+        ],
+        "required_methods": ["upsert_node", "upsert_edge"],
+    },
+    "VECTOR_STORAGE": {
+        "implementations": [
+            "NanoVectorDBStorage",
+            "MilvusVectorDBStorage",
+            "ChromaVectorDBStorage",
+            "TiDBVectorDBStorage",
+            "PGVectorStorage",
+            "FaissVectorDBStorage",
+            "QdrantVectorDBStorage",
+            "OracleVectorDBStorage",
+            "MongoVectorDBStorage",
+        ],
+        "required_methods": ["query", "upsert"],
+    },
+    "DOC_STATUS_STORAGE": {
+        "implementations": [
+            "JsonDocStatusStorage",
+            "PGDocStatusStorage",
+            "PGDocStatusStorage",
+            "MongoDocStatusStorage",
+        ],
+        "required_methods": ["get_docs_by_status"],
+    },
+}

@@ -11,11 +11,18 @@ from typing import (
     TypedDict,
     TypeVar,
 )
-import numpy as np
 from .utils import EmbeddingFunc
 from .types import KnowledgeGraph
 
 load_dotenv()
+
+class StoragesStatus(str, Enum):
+    """Storages status"""
+
+    NOT_CREATED = "not_created"
+    CREATED = "created"
+    INITIALIZED = "initialized"
+    FINALIZED = "finalized"
 
 
 class TextChunkSchema(TypedDict):
@@ -193,12 +200,6 @@ class BaseGraphStorage(StorageNameSpace, ABC):
         """Embed nodes using an algorithm."""
 
     @abstractmethod
-    async def embed_nodes(
-        self, algorithm: str
-    ) -> tuple[np.ndarray[Any, Any], list[str]]:
-        """Get all labels in the graph."""
-
-    @abstractmethod
     async def get_all_labels(self) -> list[str]:
         """Get a knowledge graph of a node."""
 
@@ -255,12 +256,3 @@ class DocStatusStorage(BaseKVStorage, ABC):
         self, status: DocStatus
     ) -> dict[str, DocProcessingStatus]:
         """Get all documents with a specific status"""
-
-
-class StoragesStatus(str, Enum):
-    """Storages status"""
-
-    NOT_CREATED = "not_created"
-    CREATED = "created"
-    INITIALIZED = "initialized"
-    FINALIZED = "finalized"

@@ -26,31 +26,6 @@ load_dotenv(override=True)
 VERBOSE_DEBUG = os.getenv("VERBOSE", "false").lower() == "true"
 
 
-def verbose_debug(msg: str, *args, **kwargs):
-    """Function for outputting detailed debug information.
-    When VERBOSE_DEBUG=True, outputs the complete message.
-    When VERBOSE_DEBUG=False, outputs only the first 50 characters.
-
-    Args:
-        msg: The message format string
-        *args: Arguments to be formatted into the message
-        **kwargs: Keyword arguments passed to logger.debug()
-    """
-    if VERBOSE_DEBUG:
-        logger.debug(msg, *args, **kwargs)
-    else:
-        # Format the message with args first
-        if args:
-            formatted_msg = msg % args
-        else:
-            formatted_msg = msg
-        # Then truncate the formatted message
-        truncated_msg = (
-            formatted_msg[:50] + "..." if len(formatted_msg) > 50 else formatted_msg
-        )
-        logger.debug(truncated_msg, **kwargs)
-
-
 def set_verbose_debug(enabled: bool):
     """Enable or disable verbose debug output"""
     global VERBOSE_DEBUG
@@ -68,6 +43,64 @@ logger.setLevel(logging.INFO)
 # Set httpx logging level to WARNING
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
+
+def setup_logger(
+    logger_name: str,
+    level: str = "INFO",
+    add_filter: bool = False,
+    log_file_path: str = None,
+):
+    """Set up a logger with console and file handlers
+
+    Args:
+        logger_name: Name of the logger to set up
+        level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        add_filter: Whether to add LightragPathFilter to the logger
+        log_file_path: Path to the log file. If None, will use current directory/lightrag.log
+    """
+
+    # Get log file path
+    if log_file_path is None:
+        log_dir = os.getenv("LOG_DIR", os.getcwd())
+        log_file_path = os.path.abspath(os.path.join(log_dir, "lightrag.log"))
+
+    # Ensure log directory exists
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+    logger_instance = logging.getLogger(logger_name)
+    logger_instance.setLevel(level)
+    logger_instance.handlers = []  # Clear existing handlers
+    logger_instance.propagate = False
+
+    # Add console handler
+    console_handler = logging.StreamHandler()
+    simple_formatter = logging.Formatter("%(levelname)s: %(message)s")
+    console_handler.setFormatter(simple_formatter)
+    console_handler.setLevel(level)
+    logger_instance.addHandler(console_handler)
+
+    # Get log file max size and backup count from environment variables
+    log_max_bytes = int(os.getenv("LOG_MAX_BYTES", 10485760))  # Default 10MB
+    log_backup_count = int(os.getenv("LOG_BACKUP_COUNT", 5))  # Default 5 backups
+
+    # Add file handler
+    file_handler = logging.handlers.RotatingFileHandler(
+        filename=log_file_path,
+        maxBytes=log_max_bytes,
+        backupCount=log_backup_count,
+        encoding="utf-8",
+    )
+    detailed_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(detailed_formatter)
+    file_handler.setLevel(level)
+    logger_instance.addHandler(file_handler)
+
+    # Add path filter if requested
+    if add_filter:
+        path_filter = LightragPathFilter()
+        logger_instance.addFilter(path_filter)
 
 class LightragPathFilter(logging.Filter):
     """Filter for lightrag logger to filter out frequent path access logs"""
@@ -103,116 +136,79 @@ class LightragPathFilter(logging.Filter):
             # In case of any error, let the message through
             return True
 
-
-def setup_logger(
-    logger_name: str,
-    level: str = "INFO",
-    add_filter: bool = False,
-    log_file_path: str = None,
-):
-    """Set up a logger with console and file handlers
+def verbose_debug(msg: str, *args, **kwargs):
+    """Function for outputting detailed debug information.
+    When VERBOSE_DEBUG=True, outputs the complete message.
+    When VERBOSE_DEBUG=False, outputs only the first 50 characters.
 
     Args:
-        logger_name: Name of the logger to set up
-        level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        add_filter: Whether to add LightragPathFilter to the logger
-        log_file_path: Path to the log file. If None, will use current directory/lightrag.log
+        msg: The message format string
+        *args: Arguments to be formatted into the message
+        **kwargs: Keyword arguments passed to logger.debug()
     """
-    # Configure formatters
-    detailed_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    if VERBOSE_DEBUG:
+        logger.debug(msg, *args, **kwargs)
+    else:
+        # Format the message with args first
+        if args:
+            formatted_msg = msg % args
+        else:
+            formatted_msg = msg
+        # Then truncate the formatted message
+        truncated_msg = (
+            formatted_msg[:50] + "..." if len(formatted_msg) > 50 else formatted_msg
+        )
+        logger.debug(truncated_msg, **kwargs)
+
+def safe_unicode_decode(content):
+    # Regular expression to find all Unicode escape sequences of the form \uXXXX
+    unicode_escape_pattern = re.compile(r"\\u([0-9a-fA-F]{4})")
+
+    # Function to replace the Unicode escape with the actual character
+    def replace_unicode_escape(match):
+        # Convert the matched hexadecimal value into the actual Unicode character
+        return chr(int(match.group(1), 16))
+
+    # Perform the substitution
+    decoded_content = unicode_escape_pattern.sub(
+        replace_unicode_escape, content.decode("utf-8")
     )
-    simple_formatter = logging.Formatter("%(levelname)s: %(message)s")
 
-    # Get log file path
-    if log_file_path is None:
-        log_dir = os.getenv("LOG_DIR", os.getcwd())
-        log_file_path = os.path.abspath(os.path.join(log_dir, "lightrag.log"))
+    return decoded_content
 
-    # Ensure log directory exists
-    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+def wrap_embedding_func_with_attrs(**kwargs):
+    """Wrap a function with attributes"""
 
-    logger_instance = logging.getLogger(logger_name)
-    logger_instance.setLevel(level)
-    logger_instance.handlers = []  # Clear existing handlers
-    logger_instance.propagate = False
+    def final_decro(func) -> EmbeddingFunc:
+        new_func = EmbeddingFunc(**kwargs, func=func)
+        return new_func
 
-    # Add console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(simple_formatter)
-    console_handler.setLevel(level)
-    logger_instance.addHandler(console_handler)
-
-    # Get log file max size and backup count from environment variables
-    log_max_bytes = int(os.getenv("LOG_MAX_BYTES", 10485760))  # Default 10MB
-    log_backup_count = int(os.getenv("LOG_BACKUP_COUNT", 5))  # Default 5 backups
-
-    # Add file handler
-    file_handler = logging.handlers.RotatingFileHandler(
-        filename=log_file_path,
-        maxBytes=log_max_bytes,
-        backupCount=log_backup_count,
-        encoding="utf-8",
-    )
-    file_handler.setFormatter(detailed_formatter)
-    file_handler.setLevel(level)
-    logger_instance.addHandler(file_handler)
-
-    # Add path filter if requested
-    if add_filter:
-        path_filter = LightragPathFilter()
-        logger_instance.addFilter(path_filter)
-
-
-class UnlimitedSemaphore:
-    """A context manager that allows unlimited access."""
-
-    async def __aenter__(self):
-        pass
-
-    async def __aexit__(self, exc_type, exc, tb):
-        pass
-
-
-ENCODER = None
-
+    return final_decro
 
 @dataclass
 class EmbeddingFunc:
     embedding_dim: int
     max_token_size: int
     func: callable
-    # concurrent_limit: int = 16
 
     async def __call__(self, *args, **kwargs) -> np.ndarray:
         return await self.func(*args, **kwargs)
 
+ENCODER = None
 
-def locate_json_string_body_from_string(content: str) -> str | None:
-    """Locate the JSON string body from a string"""
-    try:
-        maybe_json_str = re.search(r"{.*}", content, re.DOTALL)
-        if maybe_json_str is not None:
-            maybe_json_str = maybe_json_str.group(0)
-            maybe_json_str = maybe_json_str.replace("\\n", "")
-            maybe_json_str = maybe_json_str.replace("\n", "")
-            maybe_json_str = maybe_json_str.replace("'", '"')
-            # json.loads(maybe_json_str) # don't check here, cannot validate schema after all
-            return maybe_json_str
-    except Exception:
-        pass
-        # try:
-        #     content = (
-        #         content.replace(kw_prompt[:-1], "")
-        #         .replace("user", "")
-        #         .replace("model", "")
-        #         .strip()
-        #     )
-        #     maybe_json_str = "{" + content.split("{")[1].split("}")[0] + "}"
-        #     json.loads(maybe_json_str)
+def encode_string_by_tiktoken(content: str, model_name: str = "gpt-4o"):
+    global ENCODER
+    if ENCODER is None:
+        ENCODER = tiktoken.encoding_for_model(model_name)
+    tokens = ENCODER.encode(content)
+    return tokens
 
-        return None
-
+def decode_tokens_by_tiktoken(tokens: list[int], model_name: str = "gpt-4o"):
+    global ENCODER
+    if ENCODER is None:
+        ENCODER = tiktoken.encoding_for_model(model_name)
+    content = ENCODER.decode(tokens)
+    return content
 
 def convert_response_to_json(response: str) -> dict[str, Any]:
     json_str = locate_json_string_body_from_string(response)
@@ -224,6 +220,35 @@ def convert_response_to_json(response: str) -> dict[str, Any]:
         logger.error(f"Failed to parse JSON: {json_str}")
         raise e from None
 
+def locate_json_string_body_from_string(content: str) -> str | None:
+    """Locate the JSON string body from a string"""
+    try:
+        maybe_json_str = re.search(r"{.*}", content, re.DOTALL)
+        if maybe_json_str is not None:
+            maybe_json_str = maybe_json_str.group(0)
+            maybe_json_str = maybe_json_str.replace("\\n", "")
+            maybe_json_str = maybe_json_str.replace("\n", "")
+            maybe_json_str = maybe_json_str.replace("'", '"')
+            return maybe_json_str
+    except Exception:
+        pass
+        return None
+
+def limit_async_func_call(max_size: int):
+    """Add restriction of maximum concurrent async calls using asyncio.Semaphore"""
+
+    def final_decro(func):
+        sem = asyncio.Semaphore(max_size)
+
+        @wraps(func)
+        async def wait_func(*args, **kwargs):
+            async with sem:
+                result = await func(*args, **kwargs)
+                return result
+
+        return wait_func
+
+    return final_decro
 
 def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
     """Compute a hash for the given arguments.
@@ -253,33 +278,6 @@ def compute_mdhash_id(content: str, prefix: str = "") -> str:
     return prefix + md5(content.encode()).hexdigest()
 
 
-def limit_async_func_call(max_size: int):
-    """Add restriction of maximum concurrent async calls using asyncio.Semaphore"""
-
-    def final_decro(func):
-        sem = asyncio.Semaphore(max_size)
-
-        @wraps(func)
-        async def wait_func(*args, **kwargs):
-            async with sem:
-                result = await func(*args, **kwargs)
-                return result
-
-        return wait_func
-
-    return final_decro
-
-
-def wrap_embedding_func_with_attrs(**kwargs):
-    """Wrap a function with attributes"""
-
-    def final_decro(func) -> EmbeddingFunc:
-        new_func = EmbeddingFunc(**kwargs, func=func)
-        return new_func
-
-    return final_decro
-
-
 def load_json(file_name):
     if not os.path.exists(file_name):
         return None
@@ -290,22 +288,6 @@ def load_json(file_name):
 def write_json(json_obj, file_name):
     with open(file_name, "w", encoding="utf-8") as f:
         json.dump(json_obj, f, indent=2, ensure_ascii=False)
-
-
-def encode_string_by_tiktoken(content: str, model_name: str = "gpt-4o"):
-    global ENCODER
-    if ENCODER is None:
-        ENCODER = tiktoken.encoding_for_model(model_name)
-    tokens = ENCODER.encode(content)
-    return tokens
-
-
-def decode_tokens_by_tiktoken(tokens: list[int], model_name: str = "gpt-4o"):
-    global ENCODER
-    if ENCODER is None:
-        ENCODER = tiktoken.encoding_for_model(model_name)
-    content = ENCODER.decode(tokens)
-    return content
 
 
 def pack_user_ass_to_openai_messages(*args: str):
@@ -727,23 +709,6 @@ async def save_to_cache(hashing_kv, cache_data: CacheData):
     }
 
     await hashing_kv.upsert({cache_data.mode: mode_cache})
-
-
-def safe_unicode_decode(content):
-    # Regular expression to find all Unicode escape sequences of the form \uXXXX
-    unicode_escape_pattern = re.compile(r"\\u([0-9a-fA-F]{4})")
-
-    # Function to replace the Unicode escape with the actual character
-    def replace_unicode_escape(match):
-        # Convert the matched hexadecimal value into the actual Unicode character
-        return chr(int(match.group(1), 16))
-
-    # Perform the substitution
-    decoded_content = unicode_escape_pattern.sub(
-        replace_unicode_escape, content.decode("utf-8")
-    )
-
-    return decoded_content
 
 
 def exists_func(obj, func_name: str) -> bool:

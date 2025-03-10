@@ -622,23 +622,6 @@ class OracleGraphStorage(BaseGraphStorage):
         await self.db.execute(merge_sql, data)
         # self._graph.add_edge(source_node_id, target_node_id, **edge_data)
 
-    async def embed_nodes(
-        self, algorithm: str
-    ) -> tuple[np.ndarray[Any, Any], list[str]]:
-        if algorithm not in self._node_embed_algorithms:
-            raise ValueError(f"Node embedding algorithm {algorithm} not supported")
-        return await self._node_embed_algorithms[algorithm]()
-
-    async def _node2vec_embed(self):
-        """为节点生成向量"""
-        embeddings, nodes = embed.node2vec_embed(
-            self._graph,
-            **self.config["node2vec_params"],
-        )
-
-        nodes_ids = [self._graph.nodes[node_id]["id"] for node_id in nodes]
-        return embeddings, nodes_ids
-
     async def index_done_callback(self) -> None:
         # Oracles handles persistence automatically
         pass

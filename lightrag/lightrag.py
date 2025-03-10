@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import configparser
 import os
 import warnings
 from dataclasses import asdict, dataclass, field
@@ -47,15 +46,12 @@ from .utils import (
     limit_async_func_call,
     logger,
 )
+from lightrag.kg.shared_storage import initialize_share_data
 from .types import KnowledgeGraph
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv(override=True)
-
-# TODO: TO REMOVE @Yannick
-config = configparser.ConfigParser()
-config.read("config.ini", "utf-8")
 
 
 @final
@@ -80,16 +76,27 @@ class LightRAG:
     vector_storage: str = field(default="NanoVectorDBStorage")
     """Storage backend for vector embeddings."""
 
+    vector_db_storage_cls_kwargs: dict[str, Any] = field(default_factory=dict)
+    """Additional parameters for vector database storage."""
+
+    cosine_better_than_threshold: float = field(
+        default=float(os.getenv("COSINE_THRESHOLD", 0.2))
+    )
+
     graph_storage: str = field(default="NetworkXStorage")
     """Storage backend for knowledge graphs."""
 
     doc_status_storage: str = field(default="JsonDocStatusStorage")
     """Storage type for tracking document processing statuses."""
 
-    # Logging (Deprecated, use setup_logger in utils.py instead)
-    # ---
-    log_level: int | None = field(default=None)
-    log_file_path: str | None = field(default=None)
+    namespace_prefix: str = field(default="")
+    """Prefix for namespacing stored data across different environments."""
+
+    enable_llm_cache: bool = field(default=True)
+    """Enables caching for LLM responses to avoid redundant computations."""
+
+    enable_llm_cache_for_entity_extract: bool = field(default=True)
+    """If True, enables caching for entity extraction steps to reduce LLM costs."""
 
     # Entity extraction
     # ---
@@ -147,31 +154,6 @@ class LightRAG:
     Defaults to `chunking_by_token_size` if not specified.
     """
 
-    # Node embedding
-    # ---
-
-    node_embedding_algorithm: str = field(default="node2vec")
-    """Algorithm used for node embedding in knowledge graphs."""
-
-    node2vec_params: dict[str, int] = field(
-        default_factory=lambda: {
-            "dimensions": 1536,
-            "num_walks": 10,
-            "walk_length": 40,
-            "window_size": 2,
-            "iterations": 3,
-            "random_seed": 3,
-        }
-    )
-    """Configuration for the node2vec embedding algorithm:
-    - dimensions: Number of dimensions for embeddings.
-    - num_walks: Number of random walks per node.
-    - walk_length: Number of steps per random walk.
-    - window_size: Context window size for training.
-    - iterations: Number of iterations for training.
-    - random_seed: Seed value for reproducibility.
-    """
-
     # Embedding
     # ---
 
@@ -215,21 +197,6 @@ class LightRAG:
     llm_model_kwargs: dict[str, Any] = field(default_factory=dict)
     """Additional keyword arguments passed to the LLM model function."""
 
-    # Storage
-    # ---
-
-    vector_db_storage_cls_kwargs: dict[str, Any] = field(default_factory=dict)
-    """Additional parameters for vector database storage."""
-
-    namespace_prefix: str = field(default="")
-    """Prefix for namespacing stored data across different environments."""
-
-    enable_llm_cache: bool = field(default=True)
-    """Enables caching for LLM responses to avoid redundant computations."""
-
-    enable_llm_cache_for_entity_extract: bool = field(default=True)
-    """If True, enables caching for entity extraction steps to reduce LLM costs."""
-
     # Extensions
     # ---
 
@@ -260,36 +227,9 @@ class LightRAG:
     The default function is :func:`.utils.convert_response_to_json`.
     """
 
-    cosine_better_than_threshold: float = field(
-        default=float(os.getenv("COSINE_THRESHOLD", 0.2))
-    )
-
     _storages_status: StoragesStatus = field(default=StoragesStatus.NOT_CREATED)
 
     def __post_init__(self):
-        from lightrag.kg.shared_storage import (
-            initialize_share_data,
-        )
-
-        # Handle deprecated parameters
-        if self.log_level is not None:
-            warnings.warn(
-                "WARNING: log_level parameter is deprecated, use setup_logger in utils.py instead",
-                UserWarning,
-                stacklevel=2,
-            )
-        if self.log_file_path is not None:
-            warnings.warn(
-                "WARNING: log_file_path parameter is deprecated, use setup_logger in utils.py instead",
-                UserWarning,
-                stacklevel=2,
-            )
-
-        # Remove these attributes to prevent their use
-        if hasattr(self, "log_level"):
-            delattr(self, "log_level")
-        if hasattr(self, "log_file_path"):
-            delattr(self, "log_file_path")
 
         initialize_share_data()
 
@@ -308,8 +248,6 @@ class LightRAG:
         for storage_type, storage_name in storage_configs:
             # Verify storage implementation compatibility
             verify_storage_implementation(storage_type, storage_name)
-            # Check environment variables
-            # self.check_storage_env_vars(storage_name)
 
         # Ensure vector_db_storage_cls_kwargs has required fields
         self.vector_db_storage_cls_kwargs = {
@@ -1887,24 +1825,6 @@ class LightRAG:
             result["vector_data"] = vector_data[0] if vector_data else None
 
         return result
-
-    def check_storage_env_vars(self, storage_name: str) -> None:
-        """Check if all required environment variables for storage implementation exist
-
-        Args:
-            storage_name: Storage implementation name
-
-        Raises:
-            ValueError: If required environment variables are missing
-        """
-        required_vars = STORAGE_ENV_REQUIREMENTS.get(storage_name, [])
-        missing_vars = [var for var in required_vars if var not in os.environ]
-
-        if missing_vars:
-            raise ValueError(
-                f"Storage implementation '{storage_name}' requires the following "
-                f"environment variables: {', '.join(missing_vars)}"
-            )
 
     async def aclear_cache(self, modes: list[str] | None = None) -> None:
         """Clear cache data from the LLM response cache storage.
