@@ -250,6 +250,25 @@ def limit_async_func_call(max_size: int):
 
     return final_decro
 
+def lazy_external_import(module_name: str, class_name: str) -> Callable[..., Any]:
+    """Lazily import a class from an external module based on the package of the caller."""
+    # Get the caller's module and package
+    import inspect
+
+    caller_frame = inspect.currentframe().f_back
+    module = inspect.getmodule(caller_frame)
+    package = module.__package__ if module else None
+
+    def import_class(*args: Any, **kwargs: Any):
+        import importlib
+
+        module = importlib.import_module(module_name, package=package)
+        cls = getattr(module, class_name)
+        return cls(*args, **kwargs)
+
+    return import_class
+
+
 def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
     """Compute a hash for the given arguments.
     Args:
@@ -808,22 +827,3 @@ def always_get_an_event_loop() -> asyncio.AbstractEventLoop:
         new_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(new_loop)
         return new_loop
-
-
-def lazy_external_import(module_name: str, class_name: str) -> Callable[..., Any]:
-    """Lazily import a class from an external module based on the package of the caller."""
-    # Get the caller's module and package
-    import inspect
-
-    caller_frame = inspect.currentframe().f_back
-    module = inspect.getmodule(caller_frame)
-    package = module.__package__ if module else None
-
-    def import_class(*args: Any, **kwargs: Any):
-        import importlib
-
-        module = importlib.import_module(module_name, package=package)
-        cls = getattr(module, class_name)
-        return cls(*args, **kwargs)
-
-    return import_class

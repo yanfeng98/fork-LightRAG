@@ -269,32 +269,9 @@ class LightRAG:
         self.key_string_value_json_storage_cls: type[BaseKVStorage] = (
             self._get_storage_class(self.kv_storage)
         )  # type: ignore
-        self.vector_db_storage_cls: type[BaseVectorStorage] = self._get_storage_class(
-            self.vector_storage
-        )  # type: ignore
-        self.graph_storage_cls: type[BaseGraphStorage] = self._get_storage_class(
-            self.graph_storage
-        )  # type: ignore
         self.key_string_value_json_storage_cls = partial(  # type: ignore
             self.key_string_value_json_storage_cls, global_config=global_config
         )
-        self.vector_db_storage_cls = partial(  # type: ignore
-            self.vector_db_storage_cls, global_config=global_config
-        )
-        self.graph_storage_cls = partial(  # type: ignore
-            self.graph_storage_cls, global_config=global_config
-        )
-
-        # Initialize document status storage
-        self.doc_status_storage_cls = self._get_storage_class(self.doc_status_storage)
-
-        self.llm_response_cache: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
-            namespace=make_namespace(
-                self.namespace_prefix, NameSpace.KV_STORE_LLM_RESPONSE_CACHE
-            ),
-            embedding_func=self.embedding_func,
-        )
-
         self.full_docs: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
             namespace=make_namespace(
                 self.namespace_prefix, NameSpace.KV_STORE_FULL_DOCS
@@ -307,13 +284,25 @@ class LightRAG:
             ),
             embedding_func=self.embedding_func,
         )
-        self.chunk_entity_relation_graph: BaseGraphStorage = self.graph_storage_cls(  # type: ignore
+        self.llm_response_cache: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
             namespace=make_namespace(
-                self.namespace_prefix, NameSpace.GRAPH_STORE_CHUNK_ENTITY_RELATION
+                self.namespace_prefix, NameSpace.KV_STORE_LLM_RESPONSE_CACHE
             ),
             embedding_func=self.embedding_func,
         )
 
+        self.vector_db_storage_cls: type[BaseVectorStorage] = self._get_storage_class(
+            self.vector_storage
+        )  # type: ignore
+        self.vector_db_storage_cls = partial(  # type: ignore
+            self.vector_db_storage_cls, global_config=global_config
+        )
+        self.chunks_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
+            namespace=make_namespace(
+                self.namespace_prefix, NameSpace.VECTOR_STORE_CHUNKS
+            ),
+            embedding_func=self.embedding_func,
+        )
         self.entities_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
             namespace=make_namespace(
                 self.namespace_prefix, NameSpace.VECTOR_STORE_ENTITIES
@@ -328,13 +317,22 @@ class LightRAG:
             embedding_func=self.embedding_func,
             meta_fields={"src_id", "tgt_id", "source_id", "content"},
         )
-        self.chunks_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
+
+        self.graph_storage_cls: type[BaseGraphStorage] = self._get_storage_class(
+            self.graph_storage
+        )  # type: ignore
+        self.graph_storage_cls = partial(  # type: ignore
+            self.graph_storage_cls, global_config=global_config
+        )
+        self.chunk_entity_relation_graph: BaseGraphStorage = self.graph_storage_cls(  # type: ignore
             namespace=make_namespace(
-                self.namespace_prefix, NameSpace.VECTOR_STORE_CHUNKS
+                self.namespace_prefix, NameSpace.GRAPH_STORE_CHUNK_ENTITY_RELATION
             ),
             embedding_func=self.embedding_func,
         )
 
+        # Initialize document status storage
+        self.doc_status_storage_cls = self._get_storage_class(self.doc_status_storage)
         # Initialize document status storage
         self.doc_status: DocStatusStorage = self.doc_status_storage_cls(
             namespace=make_namespace(self.namespace_prefix, NameSpace.DOC_STATUS),
@@ -367,6 +365,11 @@ class LightRAG:
 
         if self.auto_manage_storages_states:
             self._run_async_safely(self.initialize_storages, "Storage Initialization")
+
+    def _get_storage_class(self, storage_name: str) -> Callable[..., Any]:
+        import_path = STORAGES[storage_name]
+        storage_class = lazy_external_import(import_path, storage_name)
+        return storage_class
 
     def __del__(self):
         if self.auto_manage_storages_states:
@@ -475,11 +478,6 @@ class LightRAG:
             kwargs["inclusive"] = inclusive
 
         return await self.chunk_entity_relation_graph.get_knowledge_graph(**kwargs)
-
-    def _get_storage_class(self, storage_name: str) -> Callable[..., Any]:
-        import_path = STORAGES[storage_name]
-        storage_class = lazy_external_import(import_path, storage_name)
-        return storage_class
 
     @staticmethod
     def clean_text(text: str) -> str:
