@@ -63,3 +63,5 @@ gui/
 
 # unit-test files
 test_*
+
+lib/
