@@ -46,7 +46,7 @@ from .utils import (
     limit_async_func_call,
     logger,
 )
-from lightrag.kg.shared_storage import initialize_share_data
+from lightrag.kg.shared_storage import initialize_share_data, get_namespace_data, get_pipeline_status_lock
 from .types import KnowledgeGraph
 from dotenv import load_dotenv
 
@@ -291,6 +291,16 @@ class LightRAG:
             embedding_func=self.embedding_func,
         )
 
+        hashing_kv = self.llm_response_cache
+
+        self.llm_model_func = limit_async_func_call(self.llm_model_max_async)(
+            partial(
+                self.llm_model_func,  # type: ignore
+                hashing_kv=hashing_kv,
+                **self.llm_model_kwargs,
+            )
+        )  
+
         self.vector_db_storage_cls: type[BaseVectorStorage] = self._get_storage_class(
             self.vector_storage
         )  # type: ignore
@@ -340,27 +350,6 @@ class LightRAG:
             embedding_func=None,
         )
 
-        if self.llm_response_cache and hasattr(
-            self.llm_response_cache, "global_config"
-        ):
-            hashing_kv = self.llm_response_cache
-        else:
-            hashing_kv = self.key_string_value_json_storage_cls(  # type: ignore
-                namespace=make_namespace(
-                    self.namespace_prefix, NameSpace.KV_STORE_LLM_RESPONSE_CACHE
-                ),
-                global_config=asdict(self),
-                embedding_func=self.embedding_func,
-            )
-
-        self.llm_model_func = limit_async_func_call(self.llm_model_max_async)(
-            partial(
-                self.llm_model_func,  # type: ignore
-                hashing_kv=hashing_kv,
-                **self.llm_model_kwargs,
-            )
-        )
-
         self._storages_status = StoragesStatus.CREATED
 
         if self.auto_manage_storages_states:
@@ -402,11 +391,11 @@ class LightRAG:
             for storage in (
                 self.full_docs,
                 self.text_chunks,
+                self.llm_response_cache,
+                self.chunks_vdb,
                 self.entities_vdb,
                 self.relationships_vdb,
-                self.chunks_vdb,
                 self.chunk_entity_relation_graph,
-                self.llm_response_cache,
                 self.doc_status,
             ):
                 if storage:
@@ -416,6 +405,120 @@ class LightRAG:
 
             self._storages_status = StoragesStatus.INITIALIZED
             logger.debug("Initialized Storages")
+
+    async def ainsert(
+        self,
+        input: str | list[str],
+        split_by_character: str | None = None,
+        split_by_character_only: bool = False,
+        ids: str | list[str] | None = None,
+    ) -> None:
+        """Async Insert documents with checkpoint support
+
+        Args:
+            input: Single document string or list of document strings
+            split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
+            split_by_character_only: if split_by_character_only is True, split the string by character only, when
+            split_by_character is None, this parameter is ignored.
+            ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
+        """
+        await self.apipeline_enqueue_documents(input, ids)
+        await self.apipeline_process_enqueue_documents(
+            split_by_character, split_by_character_only
+        )
+
+    async def apipeline_enqueue_documents(
+        self, input: str | list[str], ids: list[str] | None = None
+    ) -> None:
+        """
+        Pipeline for Processing Documents
+
+        1. Validate ids if provided or generate MD5 hash IDs
+        2. Remove duplicate contents
+        3. Generate document initial status
+        4. Filter out already processed documents
+        5. Enqueue document in status
+        """
+        if isinstance(input, str):
+            input = [input]
+        if isinstance(ids, str):
+            ids = [ids]
+
+        # 1. Validate ids if provided or generate MD5 hash IDs
+        if ids is not None:
+            # Check if the number of IDs matches the number of documents
+            if len(ids) != len(input):
+                raise ValueError("Number of IDs must match the number of documents")
+
+            # Check if IDs are unique
+            if len(ids) != len(set(ids)):
+                raise ValueError("IDs must be unique")
+
+            # Generate contents dict of IDs provided by user and documents
+            contents = {id_: doc for id_, doc in zip(ids, input)}
+        else:
+            # Clean input text and remove duplicates
+            input = list(set(self.clean_text(doc) for doc in input))
+            # Generate contents dict of MD5 hash IDs and documents
+            contents = {compute_mdhash_id(doc, prefix="doc-"): doc for doc in input}
+
+        # 2. Remove duplicate contents
+        unique_contents = {
+            id_: content
+            for content, id_ in {
+                content: id_ for id_, content in contents.items()
+            }.items()
+        }
+
+        # 3. Generate document initial status
+        new_docs: dict[str, Any] = {
+            id_: {
+                "content": content,
+                "content_summary": self._get_content_summary(content),
+                "content_length": len(content),
+                "status": DocStatus.PENDING,
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat(),
+            }
+            for id_, content in unique_contents.items()
+        }
+
+        # 4. Filter out already processed documents
+        # Get docs ids
+        all_new_doc_ids = set(new_docs.keys())
+        # Exclude IDs of documents that are already in progress
+        unique_new_doc_ids = await self.doc_status.filter_keys(all_new_doc_ids)
+
+        # Filter new_docs to only include documents with unique IDs
+        new_docs = {doc_id: new_docs[doc_id] for doc_id in unique_new_doc_ids}
+
+        if not new_docs:
+            logger.info("No new unique documents were found.")
+            return
+
+        # 5. Store status document
+        await self.doc_status.upsert(new_docs)
+        logger.info(f"Stored {len(new_docs)} new unique documents")
+
+    @staticmethod
+    def clean_text(text: str) -> str:
+        """Clean text by removing null bytes (0x00) and whitespace"""
+        return text.strip().replace("\x00", "")
+
+    def _get_content_summary(self, content: str, max_length: int = 100) -> str:
+        """Get summary of document content
+
+        Args:
+            content: Original document content
+            max_length: Maximum length of summary
+
+        Returns:
+            Truncated content with ellipsis if needed
+        """
+        content = content.strip()
+        if len(content) <= max_length:
+            return content
+        return content[:max_length] + "..."
 
     async def finalize_storages(self):
         """Asynchronously finalize the storages"""
@@ -479,10 +582,7 @@ class LightRAG:
 
         return await self.chunk_entity_relation_graph.get_knowledge_graph(**kwargs)
 
-    @staticmethod
-    def clean_text(text: str) -> str:
-        """Clean text by removing null bytes (0x00) and whitespace"""
-        return text.strip().replace("\x00", "")
+
 
     def insert(
         self,
@@ -503,27 +603,6 @@ class LightRAG:
         loop = always_get_an_event_loop()
         loop.run_until_complete(
             self.ainsert(input, split_by_character, split_by_character_only, ids)
-        )
-
-    async def ainsert(
-        self,
-        input: str | list[str],
-        split_by_character: str | None = None,
-        split_by_character_only: bool = False,
-        ids: str | list[str] | None = None,
-    ) -> None:
-        """Async Insert documents with checkpoint support
-
-        Args:
-            input: Single document string or list of document strings
-            split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
-            split_by_character_only: if split_by_character_only is True, split the string by character only, when
-            split_by_character is None, this parameter is ignored.
-            ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
-        """
-        await self.apipeline_enqueue_documents(input, ids)
-        await self.apipeline_process_enqueue_documents(
-            split_by_character, split_by_character_only
         )
 
     def insert_custom_chunks(
@@ -592,93 +671,6 @@ class LightRAG:
             if update_storage:
                 await self._insert_done()
 
-    async def apipeline_enqueue_documents(
-        self, input: str | list[str], ids: list[str] | None = None
-    ) -> None:
-        """
-        Pipeline for Processing Documents
-
-        1. Validate ids if provided or generate MD5 hash IDs
-        2. Remove duplicate contents
-        3. Generate document initial status
-        4. Filter out already processed documents
-        5. Enqueue document in status
-        """
-        if isinstance(input, str):
-            input = [input]
-        if isinstance(ids, str):
-            ids = [ids]
-
-        # 1. Validate ids if provided or generate MD5 hash IDs
-        if ids is not None:
-            # Check if the number of IDs matches the number of documents
-            if len(ids) != len(input):
-                raise ValueError("Number of IDs must match the number of documents")
-
-            # Check if IDs are unique
-            if len(ids) != len(set(ids)):
-                raise ValueError("IDs must be unique")
-
-            # Generate contents dict of IDs provided by user and documents
-            contents = {id_: doc for id_, doc in zip(ids, input)}
-        else:
-            # Clean input text and remove duplicates
-            input = list(set(self.clean_text(doc) for doc in input))
-            # Generate contents dict of MD5 hash IDs and documents
-            contents = {compute_mdhash_id(doc, prefix="doc-"): doc for doc in input}
-
-        # 2. Remove duplicate contents
-        unique_contents = {
-            id_: content
-            for content, id_ in {
-                content: id_ for id_, content in contents.items()
-            }.items()
-        }
-
-        # 3. Generate document initial status
-        new_docs: dict[str, Any] = {
-            id_: {
-                "content": content,
-                "content_summary": self._get_content_summary(content),
-                "content_length": len(content),
-                "status": DocStatus.PENDING,
-                "created_at": datetime.now().isoformat(),
-                "updated_at": datetime.now().isoformat(),
-            }
-            for id_, content in unique_contents.items()
-        }
-
-        # 4. Filter out already processed documents
-        # Get docs ids
-        all_new_doc_ids = set(new_docs.keys())
-        # Exclude IDs of documents that are already in progress
-        unique_new_doc_ids = await self.doc_status.filter_keys(all_new_doc_ids)
-
-        # Log ignored document IDs
-        ignored_ids = [
-            doc_id for doc_id in unique_new_doc_ids if doc_id not in new_docs
-        ]
-        if ignored_ids:
-            logger.warning(
-                f"Ignoring {len(ignored_ids)} document IDs not found in new_docs"
-            )
-            for doc_id in ignored_ids:
-                logger.warning(f"Ignored document ID: {doc_id}")
-
-        # Filter new_docs to only include documents with unique IDs
-        new_docs = {
-            doc_id: new_docs[doc_id]
-            for doc_id in unique_new_doc_ids
-            if doc_id in new_docs
-        }
-
-        if not new_docs:
-            logger.info("No new unique documents were found.")
-            return
-
-        # 5. Store status document
-        await self.doc_status.upsert(new_docs)
-        logger.info(f"Stored {len(new_docs)} new unique documents")
 
     async def apipeline_process_enqueue_documents(
         self,
@@ -695,10 +687,6 @@ class LightRAG:
         3. Process each chunk for entity and relation extraction
         4. Update the document status
         """
-        from lightrag.kg.shared_storage import (
-            get_namespace_data,
-            get_pipeline_status_lock,
-        )
 
         # Get pipeline status shared data and lock
         pipeline_status = await get_namespace_data("pipeline_status")
@@ -1460,21 +1448,6 @@ class LightRAG:
                 ]
             ]
         )
-
-    def _get_content_summary(self, content: str, max_length: int = 100) -> str:
-        """Get summary of document content
-
-        Args:
-            content: Original document content
-            max_length: Maximum length of summary
-
-        Returns:
-            Truncated content with ellipsis if needed
-        """
-        content = content.strip()
-        if len(content) <= max_length:
-            return content
-        return content[:max_length] + "..."
 
     async def get_processing_status(self) -> dict[str, int]:
         """Get current document processing status counts

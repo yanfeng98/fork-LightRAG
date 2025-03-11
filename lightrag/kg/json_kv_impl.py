@@ -44,6 +44,18 @@ class JsonKVStorage(BaseKVStorage):
             )
             write_json(data_dict, self._file_name)
 
+    async def get_by_id(self, id: str) -> dict[str, Any] | None:
+        async with self._storage_lock:
+            return self._data.get(id)
+
+    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
+        logger.info(f"Inserting {len(data)} to {self.namespace}")
+        if not data:
+            return
+        async with self._storage_lock:
+            left_data = {k: v for k, v in data.items() if k not in self._data}
+            self._data.update(left_data)
+
     async def get_all(self) -> dict[str, Any]:
         """Get all data from storage
 
@@ -52,10 +64,6 @@ class JsonKVStorage(BaseKVStorage):
         """
         async with self._storage_lock:
             return dict(self._data)
-
-    async def get_by_id(self, id: str) -> dict[str, Any] | None:
-        async with self._storage_lock:
-            return self._data.get(id)
 
     async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
         async with self._storage_lock:
@@ -71,14 +79,6 @@ class JsonKVStorage(BaseKVStorage):
     async def filter_keys(self, keys: set[str]) -> set[str]:
         async with self._storage_lock:
             return set(keys) - set(self._data.keys())
-
-    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
-        logger.info(f"Inserting {len(data)} to {self.namespace}")
-        if not data:
-            return
-        async with self._storage_lock:
-            left_data = {k: v for k, v in data.items() if k not in self._data}
-            self._data.update(left_data)
 
     async def delete(self, ids: list[str]) -> None:
         async with self._storage_lock:

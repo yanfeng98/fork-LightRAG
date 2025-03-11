@@ -9,7 +9,6 @@ from typing import (
     Any,
     Literal,
     TypedDict,
-    TypeVar,
 )
 from .utils import EmbeddingFunc
 from .types import KnowledgeGraph
@@ -31,64 +30,6 @@ class TextChunkSchema(TypedDict):
     full_doc_id: str
     chunk_order_index: int
 
-
-T = TypeVar("T")
-
-
-@dataclass
-class QueryParam:
-    """Configuration parameters for query execution in LightRAG."""
-
-    mode: Literal["local", "global", "hybrid", "naive", "mix"] = "global"
-    """Specifies the retrieval mode:
-    - "local": Focuses on context-dependent information.
-    - "global": Utilizes global knowledge.
-    - "hybrid": Combines local and global retrieval methods.
-    - "naive": Performs a basic search without advanced techniques.
-    - "mix": Integrates knowledge graph and vector retrieval.
-    """
-
-    only_need_context: bool = False
-    """If True, only returns the retrieved context without generating a response."""
-
-    only_need_prompt: bool = False
-    """If True, only returns the generated prompt without producing a response."""
-
-    response_type: str = "Multiple Paragraphs"
-    """Defines the response format. Examples: 'Multiple Paragraphs', 'Single Paragraph', 'Bullet Points'."""
-
-    stream: bool = False
-    """If True, enables streaming output for real-time responses."""
-
-    top_k: int = int(os.getenv("TOP_K", "60"))
-    """Number of top items to retrieve. Represents entities in 'local' mode and relationships in 'global' mode."""
-
-    max_token_for_text_unit: int = int(os.getenv("MAX_TOKEN_TEXT_CHUNK", "4000"))
-    """Maximum number of tokens allowed for each retrieved text chunk."""
-
-    max_token_for_global_context: int = int(
-        os.getenv("MAX_TOKEN_RELATION_DESC", "4000")
-    )
-    """Maximum number of tokens allocated for relationship descriptions in global retrieval."""
-
-    max_token_for_local_context: int = int(os.getenv("MAX_TOKEN_ENTITY_DESC", "4000"))
-    """Maximum number of tokens allocated for entity descriptions in local retrieval."""
-
-    hl_keywords: list[str] = field(default_factory=list)
-    """List of high-level keywords to prioritize in retrieval."""
-
-    ll_keywords: list[str] = field(default_factory=list)
-    """List of low-level keywords to refine retrieval focus."""
-
-    conversation_history: list[dict[str, str]] = field(default_factory=list)
-    """Stores past conversation history to maintain context.
-    Format: [{"role": "user/assistant", "content": "message"}].
-    """
-
-    history_turns: int = 3
-    """Number of complete conversation turns (user-assistant pairs) to consider in the response context."""
-
-
 @dataclass
 class StorageNameSpace(ABC):
     namespace: str
@@ -106,6 +47,25 @@ class StorageNameSpace(ABC):
     async def index_done_callback(self) -> None:
         """Commit the storage operations after indexing"""
 
+@dataclass
+class BaseKVStorage(StorageNameSpace, ABC):
+    embedding_func: EmbeddingFunc
+
+    @abstractmethod
+    async def get_by_id(self, id: str) -> dict[str, Any] | None:
+        """Get value by id"""
+
+    @abstractmethod
+    async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
+        """Get values by ids"""
+
+    @abstractmethod
+    async def filter_keys(self, keys: set[str]) -> set[str]:
+        """Return un-exist keys"""
+
+    @abstractmethod
+    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
+        """Upsert data"""
 
 @dataclass
 class BaseVectorStorage(StorageNameSpace, ABC):
@@ -128,28 +88,6 @@ class BaseVectorStorage(StorageNameSpace, ABC):
     @abstractmethod
     async def delete_entity_relation(self, entity_name: str) -> None:
         """Delete relations for a given entity."""
-
-
-@dataclass
-class BaseKVStorage(StorageNameSpace, ABC):
-    embedding_func: EmbeddingFunc
-
-    @abstractmethod
-    async def get_by_id(self, id: str) -> dict[str, Any] | None:
-        """Get value by id"""
-
-    @abstractmethod
-    async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
-        """Get values by ids"""
-
-    @abstractmethod
-    async def filter_keys(self, keys: set[str]) -> set[str]:
-        """Return un-exist keys"""
-
-    @abstractmethod
-    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
-        """Upsert data"""
-
 
 @dataclass
 class BaseGraphStorage(StorageNameSpace, ABC):
@@ -209,6 +147,19 @@ class BaseGraphStorage(StorageNameSpace, ABC):
     ) -> KnowledgeGraph:
         """Retrieve a subgraph of the knowledge graph starting from a given node."""
 
+@dataclass
+class DocStatusStorage(BaseKVStorage, ABC):
+    """Base class for document status storage"""
+
+    @abstractmethod
+    async def get_status_counts(self) -> dict[str, int]:
+        """Get counts of documents in each status"""
+
+    @abstractmethod
+    async def get_docs_by_status(
+        self, status: DocStatus
+    ) -> dict[str, DocProcessingStatus]:
+        """Get all documents with a specific status"""
 
 class DocStatus(str, Enum):
     """Document processing status"""
@@ -217,7 +168,6 @@ class DocStatus(str, Enum):
     PROCESSING = "processing"
     PROCESSED = "processed"
     FAILED = "failed"
-
 
 @dataclass
 class DocProcessingStatus:
@@ -242,17 +192,55 @@ class DocProcessingStatus:
     metadata: dict[str, Any] = field(default_factory=dict)
     """Additional metadata"""
 
-
 @dataclass
-class DocStatusStorage(BaseKVStorage, ABC):
-    """Base class for document status storage"""
+class QueryParam:
+    """Configuration parameters for query execution in LightRAG."""
 
-    @abstractmethod
-    async def get_status_counts(self) -> dict[str, int]:
-        """Get counts of documents in each status"""
+    mode: Literal["local", "global", "hybrid", "naive", "mix"] = "global"
+    """Specifies the retrieval mode:
+    - "local": Focuses on context-dependent information.
+    - "global": Utilizes global knowledge.
+    - "hybrid": Combines local and global retrieval methods.
+    - "naive": Performs a basic search without advanced techniques.
+    - "mix": Integrates knowledge graph and vector retrieval.
+    """
 
-    @abstractmethod
-    async def get_docs_by_status(
-        self, status: DocStatus
-    ) -> dict[str, DocProcessingStatus]:
-        """Get all documents with a specific status"""
+    only_need_context: bool = False
+    """If True, only returns the retrieved context without generating a response."""
+
+    only_need_prompt: bool = False
+    """If True, only returns the generated prompt without producing a response."""
+
+    response_type: str = "Multiple Paragraphs"
+    """Defines the response format. Examples: 'Multiple Paragraphs', 'Single Paragraph', 'Bullet Points'."""
+
+    stream: bool = False
+    """If True, enables streaming output for real-time responses."""
+
+    top_k: int = int(os.getenv("TOP_K", "60"))
+    """Number of top items to retrieve. Represents entities in 'local' mode and relationships in 'global' mode."""
+
+    max_token_for_text_unit: int = int(os.getenv("MAX_TOKEN_TEXT_CHUNK", "4000"))
+    """Maximum number of tokens allowed for each retrieved text chunk."""
+
+    max_token_for_global_context: int = int(
+        os.getenv("MAX_TOKEN_RELATION_DESC", "4000")
+    )
+    """Maximum number of tokens allocated for relationship descriptions in global retrieval."""
+
+    max_token_for_local_context: int = int(os.getenv("MAX_TOKEN_ENTITY_DESC", "4000"))
+    """Maximum number of tokens allocated for entity descriptions in local retrieval."""
+
+    hl_keywords: list[str] = field(default_factory=list)
+    """List of high-level keywords to prioritize in retrieval."""
+
+    ll_keywords: list[str] = field(default_factory=list)
+    """List of low-level keywords to refine retrieval focus."""
+
+    conversation_history: list[dict[str, str]] = field(default_factory=list)
+    """Stores past conversation history to maintain context.
+    Format: [{"role": "user/assistant", "content": "message"}].
+    """
+
+    history_turns: int = 3
+    """Number of complete conversation turns (user-assistant pairs) to consider in the response context."""

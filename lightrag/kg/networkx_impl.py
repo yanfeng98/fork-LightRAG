@@ -1,7 +1,6 @@
 import os
 from dataclasses import dataclass
 from typing import Any, final
-import numpy as np
 
 from lightrag.types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
 from lightrag.utils import logger
@@ -16,7 +15,6 @@ if not pm.is_installed("graspologic"):
     pm.install("graspologic")
 
 import networkx as nx
-from graspologic import embed
 from .shared_storage import (
     get_storage_lock,
     get_update_flag,
@@ -30,11 +28,6 @@ MAX_GRAPH_NODES = int(os.getenv("MAX_GRAPH_NODES", 1000))
 @final
 @dataclass
 class NetworkXStorage(BaseGraphStorage):
-    @staticmethod
-    def load_nx_graph(file_name) -> nx.Graph:
-        if os.path.exists(file_name):
-            return nx.read_graphml(file_name)
-        return None
 
     @staticmethod
     def write_nx_graph(graph: nx.Graph, file_name):
@@ -93,6 +86,12 @@ class NetworkXStorage(BaseGraphStorage):
         else:
             logger.info("Created new empty graph")
         self._graph = preloaded_graph or nx.Graph()
+
+    @staticmethod
+    def load_nx_graph(file_name) -> nx.Graph:
+        if os.path.exists(file_name):
+            return nx.read_graphml(file_name)
+        return None
 
     async def initialize(self):
         """Initialize storage data"""

@@ -48,6 +48,39 @@ class JsonDocStatusStorage(DocStatusStorage):
         async with self._storage_lock:
             return set(keys) - set(self._data.keys())
 
+    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
+        logger.info(f"Inserting {len(data)} to {self.namespace}")
+        if not data:
+            return
+
+        async with self._storage_lock:
+            self._data.update(data)
+        await self.index_done_callback()
+
+    async def index_done_callback(self) -> None:
+        async with self._storage_lock:
+            data_dict = (
+                dict(self._data) if hasattr(self._data, "_getvalue") else self._data
+            )
+            write_json(data_dict, self._file_name)
+
+    async def get_docs_by_status(
+        self, status: DocStatus
+    ) -> dict[str, DocProcessingStatus]:
+        """Get all documents with a specific status"""
+        result = {}
+        async with self._storage_lock:
+            for k, v in self._data.items():
+                if v["status"] == status.value:
+                    try:
+                        # Make a copy of the data to avoid modifying the original
+                        data = v.copy()
+                        result[k] = DocProcessingStatus(**data)
+                    except KeyError as e:
+                        logger.error(f"Missing required field for document {k}: {e}")
+                        continue
+        return result
+
     async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
         result: list[dict[str, Any]] = []
         async with self._storage_lock:
@@ -64,42 +97,6 @@ class JsonDocStatusStorage(DocStatusStorage):
             for doc in self._data.values():
                 counts[doc["status"]] += 1
         return counts
-
-    async def get_docs_by_status(
-        self, status: DocStatus
-    ) -> dict[str, DocProcessingStatus]:
-        """Get all documents with a specific status"""
-        result = {}
-        async with self._storage_lock:
-            for k, v in self._data.items():
-                if v["status"] == status.value:
-                    try:
-                        # Make a copy of the data to avoid modifying the original
-                        data = v.copy()
-                        # If content is missing, use content_summary as content
-                        if "content" not in data and "content_summary" in data:
-                            data["content"] = data["content_summary"]
-                        result[k] = DocProcessingStatus(**data)
-                    except KeyError as e:
-                        logger.error(f"Missing required field for document {k}: {e}")
-                        continue
-        return result
-
-    async def index_done_callback(self) -> None:
-        async with self._storage_lock:
-            data_dict = (
-                dict(self._data) if hasattr(self._data, "_getvalue") else self._data
-            )
-            write_json(data_dict, self._file_name)
-
-    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
-        logger.info(f"Inserting {len(data)} to {self.namespace}")
-        if not data:
-            return
-
-        async with self._storage_lock:
-            self._data.update(data)
-        await self.index_done_callback()
 
     async def get_by_id(self, id: str) -> Union[dict[str, Any], None]:
         async with self._storage_lock:

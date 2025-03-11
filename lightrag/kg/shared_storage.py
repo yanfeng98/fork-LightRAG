@@ -46,12 +46,12 @@ def initialize_share_data(workers: int = 1):
         _workers, \
         is_multiprocess, \
         _storage_lock, \
-        _internal_lock, \
-        _pipeline_status_lock, \
-        _shared_dicts, \
         _init_flags, \
-        _initialized, \
-        _update_flags
+        _shared_dicts, \
+        _internal_lock, \
+        _update_flags, \
+        _pipeline_status_lock, \
+        _initialized
 
     # Check if already initialized
     if _initialized:
@@ -76,12 +76,12 @@ def initialize_share_data(workers: int = 1):
         )
     else:
         is_multiprocess = False
-        _internal_lock = asyncio.Lock()
-        _storage_lock = asyncio.Lock()
-        _pipeline_status_lock = asyncio.Lock()
-        _shared_dicts = {}
         _init_flags = {}
+        _storage_lock = asyncio.Lock()
+        _shared_dicts = {}
+        _internal_lock = asyncio.Lock()
         _update_flags = {}
+        _pipeline_status_lock = asyncio.Lock()
         direct_log(f"Process {os.getpid()} Shared-Data created for Single Process")
 
     # Mark as initialized
@@ -128,20 +128,79 @@ class UnifiedLock(Generic[T]):
             raise RuntimeError("Use 'async with' for shared_storage lock")
         self._lock.release()
 
+def get_storage_lock() -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    return UnifiedLock(lock=_storage_lock, is_async=not is_multiprocess)
+
+def try_initialize_namespace(namespace: str) -> bool:
+    """
+    Returns True if the current worker(process) gets initialization permission for loading data later.
+    The worker does not get the permission is prohibited to load data from files.
+    """
+    global _init_flags, _manager
+
+    if _init_flags is None:
+        raise ValueError("Try to create nanmespace before Shared-Data is initialized")
+
+    if namespace not in _init_flags:
+        _init_flags[namespace] = True
+        direct_log(
+            f"Process {os.getpid()} ready to initialize storage namespace: [{namespace}]"
+        )
+        return True
+    direct_log(
+        f"Process {os.getpid()} storage namespace already initialized: [{namespace}]"
+    )
+    return False
+
+async def get_namespace_data(namespace: str) -> Dict[str, Any]:
+    """get the shared data reference for specific namespace"""
+    if _shared_dicts is None:
+        direct_log(
+            f"Error: try to getnanmespace before it is initialized, pid={os.getpid()}",
+            level="ERROR",
+        )
+        raise ValueError("Shared dictionaries not initialized")
+
+    async with get_internal_lock():
+        if namespace not in _shared_dicts:
+            if is_multiprocess and _manager is not None:
+                _shared_dicts[namespace] = _manager.dict()
+            else:
+                _shared_dicts[namespace] = {}
+
+    return _shared_dicts[namespace]
 
 def get_internal_lock() -> UnifiedLock:
     """return unified storage lock for data consistency"""
     return UnifiedLock(lock=_internal_lock, is_async=not is_multiprocess)
 
+async def get_update_flag(namespace: str):
+    """
+    Create a namespace's update flag for a workers.
+    Returen the update flag to caller for referencing or reset.
+    """
+    global _update_flags
+    if _update_flags is None:
+        raise ValueError("Try to create namespace before Shared-Data is initialized")
 
-def get_storage_lock() -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    return UnifiedLock(lock=_storage_lock, is_async=not is_multiprocess)
+    async with get_internal_lock():
+        if namespace not in _update_flags:
+            if is_multiprocess and _manager is not None:
+                _update_flags[namespace] = _manager.list()
+            else:
+                _update_flags[namespace] = []
+            direct_log(
+                f"Process {os.getpid()} initialized updated flags for namespace: [{namespace}]"
+            )
 
+        if is_multiprocess and _manager is not None:
+            new_update_flag = _manager.Value("b", False)
+        else:
+            new_update_flag = False
 
-def get_pipeline_status_lock() -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    return UnifiedLock(lock=_pipeline_status_lock, is_async=not is_multiprocess)
+        _update_flags[namespace].append(new_update_flag)
+        return new_update_flag
 
 async def initialize_pipeline_status():
     """
@@ -172,34 +231,9 @@ async def initialize_pipeline_status():
         )
         direct_log(f"Process {os.getpid()} Pipeline namespace initialized")
 
-
-async def get_update_flag(namespace: str):
-    """
-    Create a namespace's update flag for a workers.
-    Returen the update flag to caller for referencing or reset.
-    """
-    global _update_flags
-    if _update_flags is None:
-        raise ValueError("Try to create namespace before Shared-Data is initialized")
-
-    async with get_internal_lock():
-        if namespace not in _update_flags:
-            if is_multiprocess and _manager is not None:
-                _update_flags[namespace] = _manager.list()
-            else:
-                _update_flags[namespace] = []
-            direct_log(
-                f"Process {os.getpid()} initialized updated flags for namespace: [{namespace}]"
-            )
-
-        if is_multiprocess and _manager is not None:
-            new_update_flag = _manager.Value("b", False)
-        else:
-            new_update_flag = False
-
-        _update_flags[namespace].append(new_update_flag)
-        return new_update_flag
-
+def get_pipeline_status_lock() -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    return UnifiedLock(lock=_pipeline_status_lock, is_async=not is_multiprocess)
 
 async def set_all_update_flags(namespace: str):
     """Set all update flag of namespace indicating all workers need to reload data from files"""
@@ -240,47 +274,6 @@ async def get_all_update_flags_status() -> Dict[str, list]:
             result[namespace] = worker_statuses
 
     return result
-
-
-def try_initialize_namespace(namespace: str) -> bool:
-    """
-    Returns True if the current worker(process) gets initialization permission for loading data later.
-    The worker does not get the permission is prohibited to load data from files.
-    """
-    global _init_flags, _manager
-
-    if _init_flags is None:
-        raise ValueError("Try to create nanmespace before Shared-Data is initialized")
-
-    if namespace not in _init_flags:
-        _init_flags[namespace] = True
-        direct_log(
-            f"Process {os.getpid()} ready to initialize storage namespace: [{namespace}]"
-        )
-        return True
-    direct_log(
-        f"Process {os.getpid()} storage namespace already initialized: [{namespace}]"
-    )
-    return False
-
-
-async def get_namespace_data(namespace: str) -> Dict[str, Any]:
-    """get the shared data reference for specific namespace"""
-    if _shared_dicts is None:
-        direct_log(
-            f"Error: try to getnanmespace before it is initialized, pid={os.getpid()}",
-            level="ERROR",
-        )
-        raise ValueError("Shared dictionaries not initialized")
-
-    async with get_internal_lock():
-        if namespace not in _shared_dicts:
-            if is_multiprocess and _manager is not None:
-                _shared_dicts[namespace] = _manager.dict()
-            else:
-                _shared_dicts[namespace] = {}
-
-    return _shared_dicts[namespace]
 
 
 def finalize_share_data():

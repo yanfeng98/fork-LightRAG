@@ -268,6 +268,47 @@ def lazy_external_import(module_name: str, class_name: str) -> Callable[..., Any
 
     return import_class
 
+def always_get_an_event_loop() -> asyncio.AbstractEventLoop:
+    """
+    Ensure that there is always an event loop available.
+
+    This function tries to get the current event loop. If the current event loop is closed or does not exist,
+    it creates a new event loop and sets it as the current event loop.
+
+    Returns:
+        asyncio.AbstractEventLoop: The current or newly created event loop.
+    """
+    try:
+        # Try to get the current event loop
+        current_loop = asyncio.get_event_loop()
+        if current_loop.is_closed():
+            raise RuntimeError("Event loop is closed.")
+        return current_loop
+
+    except RuntimeError:
+        # If no event loop exists or it is closed, create a new one
+        logger.info("Creating a new event loop in main thread.")
+        new_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(new_loop)
+        return new_loop
+
+def load_json(file_name):
+    if not os.path.exists(file_name):
+        return None
+    with open(file_name, encoding="utf-8") as f:
+        return json.load(f)
+
+def compute_mdhash_id(content: str, prefix: str = "") -> str:
+    """
+    Compute a unique ID for a given content string.
+
+    The ID is a combination of the given prefix and the MD5 hash of the content string.
+    """
+    return prefix + md5(content.encode()).hexdigest()
+
+def write_json(json_obj, file_name):
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(json_obj, f, indent=2, ensure_ascii=False)
 
 def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
     """Compute a hash for the given arguments.
@@ -287,27 +328,104 @@ def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
     # Compute MD5 hash
     return hashlib.md5(args_str.encode()).hexdigest()
 
+async def handle_cache(
+    hashing_kv,
+    args_hash,
+    prompt,
+    mode="default",
+    cache_type=None,
+    force_llm_cache=False,
+):
+    """Generic cache handling function"""
+    if hashing_kv is None or not (
+        force_llm_cache or hashing_kv.global_config.get("enable_llm_cache")
+    ):
+        return None, None, None, None
 
-def compute_mdhash_id(content: str, prefix: str = "") -> str:
-    """
-    Compute a unique ID for a given content string.
+    if mode != "default":
+        # Get embedding cache configuration
+        embedding_cache_config = hashing_kv.global_config.get(
+            "embedding_cache_config",
+            {"enabled": False, "similarity_threshold": 0.95, "use_llm_check": False},
+        )
+        is_embedding_cache_enabled = embedding_cache_config["enabled"]
+        use_llm_check = embedding_cache_config.get("use_llm_check", False)
 
-    The ID is a combination of the given prefix and the MD5 hash of the content string.
-    """
-    return prefix + md5(content.encode()).hexdigest()
+        quantized = min_val = max_val = None
+        if is_embedding_cache_enabled:
+            # Use embedding cache
+            current_embedding = await hashing_kv.embedding_func([prompt])
+            llm_model_func = hashing_kv.global_config.get("llm_model_func")
+            quantized, min_val, max_val = quantize_embedding(current_embedding[0])
+            best_cached_response = await get_best_cached_response(
+                hashing_kv,
+                current_embedding[0],
+                similarity_threshold=embedding_cache_config["similarity_threshold"],
+                mode=mode,
+                use_llm_check=use_llm_check,
+                llm_func=llm_model_func if use_llm_check else None,
+                original_prompt=prompt,
+                cache_type=cache_type,
+            )
+            if best_cached_response is not None:
+                logger.info(f"Embedding cached hit(mode:{mode} type:{cache_type})")
+                return best_cached_response, None, None, None
+            else:
+                # if caching keyword embedding is enabled, return the quantized embedding for saving it latter
+                logger.info(f"Embedding cached missed(mode:{mode} type:{cache_type})")
+                return None, quantized, min_val, max_val
 
+    # For default mode or is_embedding_cache_enabled is False, use regular cache
+    # default mode is for extract_entities or naive query
+    if exists_func(hashing_kv, "get_by_mode_and_id"):
+        mode_cache = await hashing_kv.get_by_mode_and_id(mode, args_hash) or {}
+    else:
+        mode_cache = await hashing_kv.get_by_id(mode) or {}
+    if args_hash in mode_cache:
+        logger.info(f"Non-embedding cached hit(mode:{mode} type:{cache_type})")
+        return mode_cache[args_hash]["return"], None, None, None
 
-def load_json(file_name):
-    if not os.path.exists(file_name):
-        return None
-    with open(file_name, encoding="utf-8") as f:
-        return json.load(f)
+    logger.info(f"Non-embedding cached missed(mode:{mode} type:{cache_type})")
+    return None, None, None, None
 
+@dataclass
+class CacheData:
+    args_hash: str
+    content: str
+    prompt: str
+    quantized: np.ndarray | None = None
+    min_val: float | None = None
+    max_val: float | None = None
+    mode: str = "default"
+    cache_type: str = "query"
 
-def write_json(json_obj, file_name):
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(json_obj, f, indent=2, ensure_ascii=False)
+async def save_to_cache(hashing_kv, cache_data: CacheData):
+    if hashing_kv is None or hasattr(cache_data.content, "__aiter__"):
+        return
 
+    if exists_func(hashing_kv, "get_by_mode_and_id"):
+        mode_cache = (
+            await hashing_kv.get_by_mode_and_id(cache_data.mode, cache_data.args_hash)
+            or {}
+        )
+    else:
+        mode_cache = await hashing_kv.get_by_id(cache_data.mode) or {}
+
+    mode_cache[cache_data.args_hash] = {
+        "return": cache_data.content,
+        "cache_type": cache_data.cache_type,
+        "embedding": cache_data.quantized.tobytes().hex()
+        if cache_data.quantized is not None
+        else None,
+        "embedding_shape": cache_data.quantized.shape
+        if cache_data.quantized is not None
+        else None,
+        "embedding_min": cache_data.min_val,
+        "embedding_max": cache_data.max_val,
+        "original_prompt": cache_data.prompt,
+    }
+
+    await hashing_kv.upsert({cache_data.mode: mode_cache})
 
 def pack_user_ass_to_openai_messages(*args: str):
     roles = ["user", "assistant"]
@@ -627,109 +745,6 @@ def dequantize_embedding(
     scale = (max_val - min_val) / (2**bits - 1)
     return (quantized * scale + min_val).astype(np.float32)
 
-
-async def handle_cache(
-    hashing_kv,
-    args_hash,
-    prompt,
-    mode="default",
-    cache_type=None,
-    force_llm_cache=False,
-):
-    """Generic cache handling function"""
-    if hashing_kv is None or not (
-        force_llm_cache or hashing_kv.global_config.get("enable_llm_cache")
-    ):
-        return None, None, None, None
-
-    if mode != "default":
-        # Get embedding cache configuration
-        embedding_cache_config = hashing_kv.global_config.get(
-            "embedding_cache_config",
-            {"enabled": False, "similarity_threshold": 0.95, "use_llm_check": False},
-        )
-        is_embedding_cache_enabled = embedding_cache_config["enabled"]
-        use_llm_check = embedding_cache_config.get("use_llm_check", False)
-
-        quantized = min_val = max_val = None
-        if is_embedding_cache_enabled:
-            # Use embedding cache
-            current_embedding = await hashing_kv.embedding_func([prompt])
-            llm_model_func = hashing_kv.global_config.get("llm_model_func")
-            quantized, min_val, max_val = quantize_embedding(current_embedding[0])
-            best_cached_response = await get_best_cached_response(
-                hashing_kv,
-                current_embedding[0],
-                similarity_threshold=embedding_cache_config["similarity_threshold"],
-                mode=mode,
-                use_llm_check=use_llm_check,
-                llm_func=llm_model_func if use_llm_check else None,
-                original_prompt=prompt,
-                cache_type=cache_type,
-            )
-            if best_cached_response is not None:
-                logger.info(f"Embedding cached hit(mode:{mode} type:{cache_type})")
-                return best_cached_response, None, None, None
-            else:
-                # if caching keyword embedding is enabled, return the quantized embedding for saving it latter
-                logger.info(f"Embedding cached missed(mode:{mode} type:{cache_type})")
-                return None, quantized, min_val, max_val
-
-    # For default mode or is_embedding_cache_enabled is False, use regular cache
-    # default mode is for extract_entities or naive query
-    if exists_func(hashing_kv, "get_by_mode_and_id"):
-        mode_cache = await hashing_kv.get_by_mode_and_id(mode, args_hash) or {}
-    else:
-        mode_cache = await hashing_kv.get_by_id(mode) or {}
-    if args_hash in mode_cache:
-        logger.info(f"Non-embedding cached hit(mode:{mode} type:{cache_type})")
-        return mode_cache[args_hash]["return"], None, None, None
-
-    logger.info(f"Non-embedding cached missed(mode:{mode} type:{cache_type})")
-    return None, None, None, None
-
-
-@dataclass
-class CacheData:
-    args_hash: str
-    content: str
-    prompt: str
-    quantized: np.ndarray | None = None
-    min_val: float | None = None
-    max_val: float | None = None
-    mode: str = "default"
-    cache_type: str = "query"
-
-
-async def save_to_cache(hashing_kv, cache_data: CacheData):
-    if hashing_kv is None or hasattr(cache_data.content, "__aiter__"):
-        return
-
-    if exists_func(hashing_kv, "get_by_mode_and_id"):
-        mode_cache = (
-            await hashing_kv.get_by_mode_and_id(cache_data.mode, cache_data.args_hash)
-            or {}
-        )
-    else:
-        mode_cache = await hashing_kv.get_by_id(cache_data.mode) or {}
-
-    mode_cache[cache_data.args_hash] = {
-        "return": cache_data.content,
-        "cache_type": cache_data.cache_type,
-        "embedding": cache_data.quantized.tobytes().hex()
-        if cache_data.quantized is not None
-        else None,
-        "embedding_shape": cache_data.quantized.shape
-        if cache_data.quantized is not None
-        else None,
-        "embedding_min": cache_data.min_val,
-        "embedding_max": cache_data.max_val,
-        "original_prompt": cache_data.prompt,
-    }
-
-    await hashing_kv.upsert({cache_data.mode: mode_cache})
-
-
 def exists_func(obj, func_name: str) -> bool:
     """Check if a function exists in an object or not.
     :param obj:
@@ -802,28 +817,3 @@ def get_conversation_turns(
         )
 
     return "\n".join(formatted_turns)
-
-
-def always_get_an_event_loop() -> asyncio.AbstractEventLoop:
-    """
-    Ensure that there is always an event loop available.
-
-    This function tries to get the current event loop. If the current event loop is closed or does not exist,
-    it creates a new event loop and sets it as the current event loop.
-
-    Returns:
-        asyncio.AbstractEventLoop: The current or newly created event loop.
-    """
-    try:
-        # Try to get the current event loop
-        current_loop = asyncio.get_event_loop()
-        if current_loop.is_closed():
-            raise RuntimeError("Event loop is closed.")
-        return current_loop
-
-    except RuntimeError:
-        # If no event loop exists or it is closed, create a new one
-        logger.info("Creating a new event loop in main thread.")
-        new_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(new_loop)
-        return new_loop

@@ -33,6 +33,7 @@ from .base import (
     TextChunkSchema,
     QueryParam,
 )
+from lightrag.kg.shared_storage import get_namespace_data
 from .prompt import GRAPH_FIELD_SEP, PROMPTS
 import time
 from dotenv import load_dotenv
@@ -132,56 +133,6 @@ async def _handle_entity_relation_summary(
     logger.debug(f"Trigger summary: {entity_or_relation_name}")
     summary = await use_llm_func(use_prompt, max_tokens=summary_max_tokens)
     return summary
-
-
-async def _handle_single_entity_extraction(
-    record_attributes: list[str],
-    chunk_key: str,
-):
-    if len(record_attributes) < 4 or record_attributes[0] != '"entity"':
-        return None
-    # add this record as a node in the G
-    entity_name = clean_str(record_attributes[1]).strip('"')
-    if not entity_name.strip():
-        return None
-    entity_type = clean_str(record_attributes[2]).strip('"')
-    entity_description = clean_str(record_attributes[3]).strip('"')
-    entity_source_id = chunk_key
-    return dict(
-        entity_name=entity_name,
-        entity_type=entity_type,
-        description=entity_description,
-        source_id=entity_source_id,
-        metadata={"created_at": time.time()},
-    )
-
-
-async def _handle_single_relationship_extraction(
-    record_attributes: list[str],
-    chunk_key: str,
-):
-    if len(record_attributes) < 5 or record_attributes[0] != '"relationship"':
-        return None
-    # add this record as edge
-    source = clean_str(record_attributes[1]).strip('"')
-    target = clean_str(record_attributes[2]).strip('"')
-    edge_description = clean_str(record_attributes[3]).strip('"')
-    edge_keywords = clean_str(record_attributes[4]).strip('"')
-    edge_source_id = chunk_key
-    weight = (
-        float(record_attributes[-1].strip('"'))
-        if is_float_regex(record_attributes[-1])
-        else 1.0
-    )
-    return dict(
-        src_id=source,
-        tgt_id=target,
-        weight=weight,
-        description=edge_description,
-        keywords=edge_keywords,
-        source_id=edge_source_id,
-        metadata={"created_at": time.time()},
-    )
 
 
 async def _merge_nodes_then_upsert(
@@ -339,7 +290,6 @@ async def extract_entities(
     global_config: dict[str, str],
     llm_response_cache: BaseKVStorage | None = None,
 ) -> None:
-    from lightrag.kg.shared_storage import get_namespace_data
 
     pipeline_status = await get_namespace_data("pipeline_status")
     use_llm_func: callable = global_config["llm_model_func"]
@@ -389,52 +339,6 @@ async def extract_entities(
 
     processed_chunks = 0
     total_chunks = len(ordered_chunks)
-
-    async def _user_llm_func_with_cache(
-        input_text: str, history_messages: list[dict[str, str]] = None
-    ) -> str:
-        if enable_llm_cache_for_entity_extract and llm_response_cache:
-            if history_messages:
-                history = json.dumps(history_messages, ensure_ascii=False)
-                _prompt = history + "\n" + input_text
-            else:
-                _prompt = input_text
-
-            arg_hash = compute_args_hash(_prompt)
-            cached_return, _1, _2, _3 = await handle_cache(
-                llm_response_cache,
-                arg_hash,
-                _prompt,
-                "default",
-                cache_type="extract",
-                force_llm_cache=True,
-            )
-            if cached_return:
-                logger.debug(f"Found cache for {arg_hash}")
-                statistic_data["llm_cache"] += 1
-                return cached_return
-            statistic_data["llm_call"] += 1
-            if history_messages:
-                res: str = await use_llm_func(
-                    input_text, history_messages=history_messages
-                )
-            else:
-                res: str = await use_llm_func(input_text)
-            await save_to_cache(
-                llm_response_cache,
-                CacheData(
-                    args_hash=arg_hash,
-                    content=res,
-                    prompt=_prompt,
-                    cache_type="extract",
-                ),
-            )
-            return res
-
-        if history_messages:
-            return await use_llm_func(input_text, history_messages=history_messages)
-        else:
-            return await use_llm_func(input_text)
 
     async def _process_single_content(chunk_key_dp: tuple[str, TextChunkSchema]):
         """ "Prpocess a single chunk
@@ -507,6 +411,52 @@ async def extract_entities(
         pipeline_status["latest_message"] = log_message
         pipeline_status["history_messages"].append(log_message)
         return dict(maybe_nodes), dict(maybe_edges)
+
+    async def _user_llm_func_with_cache(
+        input_text: str, history_messages: list[dict[str, str]] = None
+    ) -> str:
+        if enable_llm_cache_for_entity_extract and llm_response_cache:
+            if history_messages:
+                history = json.dumps(history_messages, ensure_ascii=False)
+                _prompt = history + "\n" + input_text
+            else:
+                _prompt = input_text
+
+            arg_hash = compute_args_hash(_prompt)
+            cached_return, _1, _2, _3 = await handle_cache(
+                llm_response_cache,
+                arg_hash,
+                _prompt,
+                "default",
+                cache_type="extract",
+                force_llm_cache=True,
+            )
+            if cached_return:
+                logger.debug(f"Found cache for {arg_hash}")
+                statistic_data["llm_cache"] += 1
+                return cached_return
+            statistic_data["llm_call"] += 1
+            if history_messages:
+                res: str = await use_llm_func(
+                    input_text, history_messages=history_messages
+                )
+            else:
+                res: str = await use_llm_func(input_text)
+            await save_to_cache(
+                llm_response_cache,
+                CacheData(
+                    args_hash=arg_hash,
+                    content=res,
+                    prompt=_prompt,
+                    cache_type="extract",
+                ),
+            )
+            return res
+
+        if history_messages:
+            return await use_llm_func(input_text, history_messages=history_messages)
+        else:
+            return await use_llm_func(input_text)
 
     tasks = [_process_single_content(c) for c in ordered_chunks]
     results = await asyncio.gather(*tasks)
@@ -591,6 +541,54 @@ async def extract_entities(
         }
         await relationships_vdb.upsert(data_for_vdb)
 
+
+async def _handle_single_entity_extraction(
+    record_attributes: list[str],
+    chunk_key: str,
+):
+    if len(record_attributes) < 4 or record_attributes[0] != '"entity"':
+        return None
+    # add this record as a node in the G
+    entity_name = clean_str(record_attributes[1]).strip('"')
+    if not entity_name.strip():
+        return None
+    entity_type = clean_str(record_attributes[2]).strip('"')
+    entity_description = clean_str(record_attributes[3]).strip('"')
+    entity_source_id = chunk_key
+    return dict(
+        entity_name=entity_name,
+        entity_type=entity_type,
+        description=entity_description,
+        source_id=entity_source_id,
+        metadata={"created_at": time.time()},
+    )
+
+async def _handle_single_relationship_extraction(
+    record_attributes: list[str],
+    chunk_key: str,
+):
+    if len(record_attributes) < 5 or record_attributes[0] != '"relationship"':
+        return None
+    # add this record as edge
+    source = clean_str(record_attributes[1]).strip('"')
+    target = clean_str(record_attributes[2]).strip('"')
+    edge_description = clean_str(record_attributes[3]).strip('"')
+    edge_keywords = clean_str(record_attributes[4]).strip('"')
+    edge_source_id = chunk_key
+    weight = (
+        float(record_attributes[-1].strip('"'))
+        if is_float_regex(record_attributes[-1])
+        else 1.0
+    )
+    return dict(
+        src_id=source,
+        tgt_id=target,
+        weight=weight,
+        description=edge_description,
+        keywords=edge_keywords,
+        source_id=edge_source_id,
+        metadata={"created_at": time.time()},
+    )
 
 async def kg_query(
     query: str,
