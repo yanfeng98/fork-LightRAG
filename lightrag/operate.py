@@ -99,90 +99,6 @@ def chunking_by_token_size(
             )
     return results
 
-
-async def _handle_entity_relation_summary(
-    entity_or_relation_name: str,
-    description: str,
-    global_config: dict,
-) -> str:
-    """Handle entity relation summary
-    For each entity or relation, input is the combined description of already existing description and new description.
-    If too long, use LLM to summarize.
-    """
-    use_llm_func: callable = global_config["llm_model_func"]
-    llm_max_tokens = global_config["llm_model_max_token_size"]
-    tiktoken_model_name = global_config["tiktoken_model_name"]
-    summary_max_tokens = global_config["entity_summary_to_max_tokens"]
-    language = global_config["addon_params"].get(
-        "language", PROMPTS["DEFAULT_LANGUAGE"]
-    )
-
-    tokens = encode_string_by_tiktoken(description, model_name=tiktoken_model_name)
-    if len(tokens) < summary_max_tokens:  # No need for summary
-        return description
-    prompt_template = PROMPTS["summarize_entity_descriptions"]
-    use_description = decode_tokens_by_tiktoken(
-        tokens[:llm_max_tokens], model_name=tiktoken_model_name
-    )
-    context_base = dict(
-        entity_name=entity_or_relation_name,
-        description_list=use_description.split(GRAPH_FIELD_SEP),
-        language=language,
-    )
-    use_prompt = prompt_template.format(**context_base)
-    logger.debug(f"Trigger summary: {entity_or_relation_name}")
-    summary = await use_llm_func(use_prompt, max_tokens=summary_max_tokens)
-    return summary
-
-
-async def _merge_nodes_then_upsert(
-    entity_name: str,
-    nodes_data: list[dict],
-    knowledge_graph_inst: BaseGraphStorage,
-    global_config: dict,
-):
-    """Get existing nodes from knowledge graph use name,if exists, merge data, else create, then upsert."""
-    already_entity_types = []
-    already_source_ids = []
-    already_description = []
-
-    already_node = await knowledge_graph_inst.get_node(entity_name)
-    if already_node is not None:
-        already_entity_types.append(already_node["entity_type"])
-        already_source_ids.extend(
-            split_string_by_multi_markers(already_node["source_id"], [GRAPH_FIELD_SEP])
-        )
-        already_description.append(already_node["description"])
-
-    entity_type = sorted(
-        Counter(
-            [dp["entity_type"] for dp in nodes_data] + already_entity_types
-        ).items(),
-        key=lambda x: x[1],
-        reverse=True,
-    )[0][0]
-    description = GRAPH_FIELD_SEP.join(
-        sorted(set([dp["description"] for dp in nodes_data] + already_description))
-    )
-    source_id = GRAPH_FIELD_SEP.join(
-        set([dp["source_id"] for dp in nodes_data] + already_source_ids)
-    )
-    description = await _handle_entity_relation_summary(
-        entity_name, description, global_config
-    )
-    node_data = dict(
-        entity_type=entity_type,
-        description=description,
-        source_id=source_id,
-    )
-    await knowledge_graph_inst.upsert_node(
-        entity_name,
-        node_data=node_data,
-    )
-    node_data["entity_name"] = entity_name
-    return node_data
-
-
 async def _merge_edges_then_upsert(
     src_id: str,
     tgt_id: str,
@@ -541,6 +457,86 @@ async def extract_entities(
         }
         await relationships_vdb.upsert(data_for_vdb)
 
+async def _merge_nodes_then_upsert(
+    entity_name: str,
+    nodes_data: list[dict],
+    knowledge_graph_inst: BaseGraphStorage,
+    global_config: dict,
+):
+    """Get existing nodes from knowledge graph use name,if exists, merge data, else create, then upsert."""
+    already_entity_types = []
+    already_source_ids = []
+    already_description = []
+
+    already_node = await knowledge_graph_inst.get_node(entity_name)
+    if already_node is not None:
+        already_entity_types.append(already_node["entity_type"])
+        already_source_ids.extend(
+            split_string_by_multi_markers(already_node["source_id"], [GRAPH_FIELD_SEP])
+        )
+        already_description.append(already_node["description"])
+
+    entity_type = sorted(
+        Counter(
+            [dp["entity_type"] for dp in nodes_data] + already_entity_types
+        ).items(),
+        key=lambda x: x[1],
+        reverse=True,
+    )[0][0]
+    description = GRAPH_FIELD_SEP.join(
+        sorted(set([dp["description"] for dp in nodes_data] + already_description))
+    )
+    source_id = GRAPH_FIELD_SEP.join(
+        set([dp["source_id"] for dp in nodes_data] + already_source_ids)
+    )
+    description = await _handle_entity_relation_summary(
+        entity_name, description, global_config
+    )
+    node_data = dict(
+        entity_type=entity_type,
+        description=description,
+        source_id=source_id,
+    )
+    await knowledge_graph_inst.upsert_node(
+        entity_name,
+        node_data=node_data,
+    )
+    node_data["entity_name"] = entity_name
+    return node_data
+
+async def _handle_entity_relation_summary(
+    entity_or_relation_name: str,
+    description: str,
+    global_config: dict,
+) -> str:
+    """Handle entity relation summary
+    For each entity or relation, input is the combined description of already existing description and new description.
+    If too long, use LLM to summarize.
+    """
+    use_llm_func: callable = global_config["llm_model_func"]
+    llm_max_tokens = global_config["llm_model_max_token_size"]
+    tiktoken_model_name = global_config["tiktoken_model_name"]
+    summary_max_tokens = global_config["entity_summary_to_max_tokens"]
+    language = global_config["addon_params"].get(
+        "language", PROMPTS["DEFAULT_LANGUAGE"]
+    )
+
+    tokens = encode_string_by_tiktoken(description, model_name=tiktoken_model_name)
+    if len(tokens) < summary_max_tokens:  # No need for summary
+        return description
+    prompt_template = PROMPTS["summarize_entity_descriptions"]
+    use_description = decode_tokens_by_tiktoken(
+        tokens[:llm_max_tokens], model_name=tiktoken_model_name
+    )
+    context_base = dict(
+        entity_name=entity_or_relation_name,
+        description_list=use_description.split(GRAPH_FIELD_SEP),
+        language=language,
+    )
+    use_prompt = prompt_template.format(**context_base)
+    logger.debug(f"Trigger summary: {entity_or_relation_name}")
+    summary = await use_llm_func(use_prompt, max_tokens=summary_max_tokens)
+    return summary
 
 async def _handle_single_entity_extraction(
     record_attributes: list[str],

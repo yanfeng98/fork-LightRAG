@@ -100,6 +100,10 @@ class NetworkXStorage(BaseGraphStorage):
         # Get the storage lock for use in other methods
         self._storage_lock = get_storage_lock()
 
+    async def get_node(self, node_id: str) -> dict[str, str] | None:
+        graph = await self._get_graph()
+        return graph.nodes.get(node_id)
+
     async def _get_graph(self):
         """Check if the storage should be reloaded"""
         # Acquire lock to prevent concurrent read and write
@@ -123,6 +127,10 @@ class NetworkXStorage(BaseGraphStorage):
 
             return self._graph
 
+    async def upsert_node(self, node_id: str, node_data: dict[str, str]) -> None:
+        graph = await self._get_graph()
+        graph.add_node(node_id, **node_data)
+
     async def has_node(self, node_id: str) -> bool:
         graph = await self._get_graph()
         return graph.has_node(node_id)
@@ -130,10 +138,6 @@ class NetworkXStorage(BaseGraphStorage):
     async def has_edge(self, source_node_id: str, target_node_id: str) -> bool:
         graph = await self._get_graph()
         return graph.has_edge(source_node_id, target_node_id)
-
-    async def get_node(self, node_id: str) -> dict[str, str] | None:
-        graph = await self._get_graph()
-        return graph.nodes.get(node_id)
 
     async def node_degree(self, node_id: str) -> int:
         graph = await self._get_graph()
@@ -154,10 +158,6 @@ class NetworkXStorage(BaseGraphStorage):
         if graph.has_node(source_node_id):
             return list(graph.edges(source_node_id))
         return None
-
-    async def upsert_node(self, node_id: str, node_data: dict[str, str]) -> None:
-        graph = await self._get_graph()
-        graph.add_node(node_id, **node_data)
 
     async def upsert_edge(
         self, source_node_id: str, target_node_id: str, edge_data: dict[str, str]

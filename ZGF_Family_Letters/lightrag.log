@@ -632,3 +632,23 @@
 2025-03-10 23:26:08,663 - lightrag - INFO - No documents to process
 2025-03-10 23:26:08,663 - lightrag - INFO - Non-embedding cached hit(mode:hybrid type:query)
 2025-03-10 23:26:08,688 - lightrag - INFO - Storage Finalization completed!
+2025-03-11 22:39:22,232 - lightrag - INFO - Loaded graph from ./ZGF_Family_Letters/graph_chunk_entity_relation.graphml with 1113 nodes, 1086 edges
+2025-03-11 22:39:22,237 - lightrag - INFO - Load KV full_docs with 1 data
+2025-03-11 22:39:22,238 - lightrag - INFO - Load KV text_chunks with 98 data
+2025-03-11 22:39:22,252 - lightrag - INFO - Load KV llm_response_cache with 5 data
+2025-03-11 22:39:22,253 - lightrag - INFO - Loaded document status storage with 1 records
+2025-03-11 22:39:22,260 - lightrag - INFO - No new unique documents were found.
+2025-03-11 22:39:22,260 - lightrag - INFO - Storage Initialization completed!
+2025-03-11 22:39:22,260 - lightrag - INFO - No documents to process
+2025-03-11 22:39:22,261 - lightrag - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-03-11 22:39:22,282 - lightrag - INFO - Storage Finalization completed!
+2025-03-11 23:40:09,845 - lightrag - INFO - Loaded graph from ./ZGF_Family_Letters/graph_chunk_entity_relation.graphml with 1113 nodes, 1086 edges
+2025-03-11 23:40:09,848 - lightrag - INFO - Load KV full_docs with 1 data
+2025-03-11 23:40:09,849 - lightrag - INFO - Load KV text_chunks with 98 data
+2025-03-11 23:40:09,861 - lightrag - INFO - Load KV llm_response_cache with 5 data
+2025-03-11 23:40:09,863 - lightrag - INFO - Loaded document status storage with 1 records
+2025-03-11 23:40:09,865 - lightrag - INFO - No new unique documents were found.
+2025-03-11 23:40:09,865 - lightrag - INFO - Storage Initialization completed!
+2025-03-11 23:40:09,865 - lightrag - INFO - No documents to process
+2025-03-11 23:40:09,865 - lightrag - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-03-11 23:40:09,887 - lightrag - INFO - Storage Finalization completed!
