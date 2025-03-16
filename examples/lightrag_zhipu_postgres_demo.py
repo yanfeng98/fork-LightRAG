@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from lightrag import LightRAG, QueryParam
 from lightrag.llm.zhipu import zhipu_complete
-from lightrag.llm.ollama import ollama_embedding
+from lightrag.llm.ollama import ollama_embed
 from lightrag.utils import EmbeddingFunc
 from lightrag.kg.shared_storage import initialize_pipeline_status
 
@@ -40,7 +40,7 @@ async def initialize_rag():
         embedding_func=EmbeddingFunc(
             embedding_dim=1024,
             max_token_size=8192,
-            func=lambda texts: ollama_embedding(
+            func=lambda texts: ollama_embed(
                 texts, embed_model="bge-m3", host="http://localhost:11434"
             ),
         ),

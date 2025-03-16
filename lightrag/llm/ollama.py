@@ -1,11 +1,6 @@
-import sys
+from collections.abc import AsyncIterator
 
-if sys.version_info < (3, 9):
-    from typing import AsyncIterator
-else:
-    from collections.abc import AsyncIterator
-
-import pipmaster as pm  # Pipmaster for dynamic library install
+import pipmaster as pm
 
 # install specific modules
 if not pm.is_installed("ollama"):
@@ -103,19 +98,6 @@ async def ollama_model_complete(
         history_messages=history_messages,
         **kwargs,
     )
-
-
-async def ollama_embedding(texts: list[str], embed_model, **kwargs) -> np.ndarray:
-    """
-    Deprecated in favor of `embed`.
-    """
-    embed_text = []
-    ollama_client = ollama.Client(**kwargs)
-    for text in texts:
-        data = ollama_client.embeddings(model=embed_model, prompt=text)
-        embed_text.append(data["embedding"])
-
-    return embed_text
 
 
 async def ollama_embed(texts: list[str], embed_model, **kwargs) -> np.ndarray:

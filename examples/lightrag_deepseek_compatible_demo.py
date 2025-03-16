@@ -4,7 +4,8 @@ import numpy as np
 from lightrag import LightRAG, QueryParam
 from lightrag.utils import EmbeddingFunc, setup_logger
 from lightrag.kg.shared_storage import initialize_pipeline_status
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
+from lightrag.llm.ollama import ollama_embed
+from lightrag.llm.openai import openai_complete_if_cache
 
 WORKING_DIR = "./ZGF_Family_Letters"
 
@@ -14,7 +15,7 @@ async def llm_model_func(
     prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:
     return await openai_complete_if_cache(
-        "gpt-4o-mini",
+        "deepseek-v3-241226",
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
@@ -23,20 +24,17 @@ async def llm_model_func(
         **kwargs,
     )
 
-
+# ollama pull nomic-embed-text
 async def embedding_func(texts: list[str]) -> np.ndarray:
-    return await openai_embed(
-        texts,
-        model="text-embedding-3-small",
-        base_url=os.environ.get("OPENAI_API_BASE"),
-        api_key=os.environ.get("OPENAI_API_KEY"),
+    return await ollama_embed(
+        texts, embed_model="nomic-embed-text", host="http://localhost:11434"
     )
 
 
 async def get_embedding_dim():
     test_text = ["This is a test sentence."]
     embedding = await embedding_func(test_text)
-    embedding_dim = embedding.shape[1]
+    embedding_dim = len(embedding[0])
     return embedding_dim
 
 
@@ -49,6 +47,8 @@ async def test_funcs():
 
 
 async def initialize_rag():
+    await test_funcs()
+    
     embedding_dimension = await get_embedding_dim()
     print(f"Detected embedding dimension: {embedding_dimension}")
 
