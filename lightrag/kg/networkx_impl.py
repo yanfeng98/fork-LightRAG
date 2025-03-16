@@ -131,13 +131,25 @@ class NetworkXStorage(BaseGraphStorage):
         graph = await self._get_graph()
         graph.add_node(node_id, **node_data)
 
+    async def has_edge(self, source_node_id: str, target_node_id: str) -> bool:
+        graph = await self._get_graph()
+        return graph.has_edge(source_node_id, target_node_id)
+
+    async def get_edge(
+        self, source_node_id: str, target_node_id: str
+    ) -> dict[str, str] | None:
+        graph = await self._get_graph()
+        return graph.edges.get((source_node_id, target_node_id))
+
     async def has_node(self, node_id: str) -> bool:
         graph = await self._get_graph()
         return graph.has_node(node_id)
 
-    async def has_edge(self, source_node_id: str, target_node_id: str) -> bool:
+    async def upsert_edge(
+        self, source_node_id: str, target_node_id: str, edge_data: dict[str, str]
+    ) -> None:
         graph = await self._get_graph()
-        return graph.has_edge(source_node_id, target_node_id)
+        graph.add_edge(source_node_id, target_node_id, **edge_data)
 
     async def node_degree(self, node_id: str) -> int:
         graph = await self._get_graph()
@@ -147,23 +159,11 @@ class NetworkXStorage(BaseGraphStorage):
         graph = await self._get_graph()
         return graph.degree(src_id) + graph.degree(tgt_id)
 
-    async def get_edge(
-        self, source_node_id: str, target_node_id: str
-    ) -> dict[str, str] | None:
-        graph = await self._get_graph()
-        return graph.edges.get((source_node_id, target_node_id))
-
     async def get_node_edges(self, source_node_id: str) -> list[tuple[str, str]] | None:
         graph = await self._get_graph()
         if graph.has_node(source_node_id):
             return list(graph.edges(source_node_id))
         return None
-
-    async def upsert_edge(
-        self, source_node_id: str, target_node_id: str, edge_data: dict[str, str]
-    ) -> None:
-        graph = await self._get_graph()
-        graph.add_edge(source_node_id, target_node_id, **edge_data)
 
     async def delete_node(self, node_id: str) -> None:
         graph = await self._get_graph()

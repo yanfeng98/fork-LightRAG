@@ -46,7 +46,7 @@ async def test_funcs():
     print("embedding_func: ", result)
 
 
-async def initialize_rag():
+async def initialize_rag() -> LightRAG:
     await test_funcs()
     
     embedding_dimension = await get_embedding_dim()
@@ -71,7 +71,7 @@ async def initialize_rag():
 async def main():
     try:
         # Initialize RAG instance
-        rag = await initialize_rag()
+        rag: LightRAG = await initialize_rag()
 
         with open("./ZGF_Family_Letters.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())

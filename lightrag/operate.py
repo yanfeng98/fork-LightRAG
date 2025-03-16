@@ -99,105 +99,6 @@ def chunking_by_token_size(
             )
     return results
 
-async def _merge_edges_then_upsert(
-    src_id: str,
-    tgt_id: str,
-    edges_data: list[dict],
-    knowledge_graph_inst: BaseGraphStorage,
-    global_config: dict,
-):
-    already_weights = []
-    already_source_ids = []
-    already_description = []
-    already_keywords = []
-
-    if await knowledge_graph_inst.has_edge(src_id, tgt_id):
-        already_edge = await knowledge_graph_inst.get_edge(src_id, tgt_id)
-        # Handle the case where get_edge returns None or missing fields
-        if already_edge:
-            # Get weight with default 0.0 if missing
-            already_weights.append(already_edge.get("weight", 0.0))
-
-            # Get source_id with empty string default if missing or None
-            if already_edge.get("source_id") is not None:
-                already_source_ids.extend(
-                    split_string_by_multi_markers(
-                        already_edge["source_id"], [GRAPH_FIELD_SEP]
-                    )
-                )
-
-            # Get description with empty string default if missing or None
-            if already_edge.get("description") is not None:
-                already_description.append(already_edge["description"])
-
-            # Get keywords with empty string default if missing or None
-            if already_edge.get("keywords") is not None:
-                already_keywords.extend(
-                    split_string_by_multi_markers(
-                        already_edge["keywords"], [GRAPH_FIELD_SEP]
-                    )
-                )
-
-    # Process edges_data with None checks
-    weight = sum([dp["weight"] for dp in edges_data] + already_weights)
-    description = GRAPH_FIELD_SEP.join(
-        sorted(
-            set(
-                [dp["description"] for dp in edges_data if dp.get("description")]
-                + already_description
-            )
-        )
-    )
-    keywords = GRAPH_FIELD_SEP.join(
-        sorted(
-            set(
-                [dp["keywords"] for dp in edges_data if dp.get("keywords")]
-                + already_keywords
-            )
-        )
-    )
-    source_id = GRAPH_FIELD_SEP.join(
-        set(
-            [dp["source_id"] for dp in edges_data if dp.get("source_id")]
-            + already_source_ids
-        )
-    )
-
-    for need_insert_id in [src_id, tgt_id]:
-        if not (await knowledge_graph_inst.has_node(need_insert_id)):
-            await knowledge_graph_inst.upsert_node(
-                need_insert_id,
-                node_data={
-                    "source_id": source_id,
-                    "description": description,
-                    "entity_type": "UNKNOWN",
-                },
-            )
-    description = await _handle_entity_relation_summary(
-        f"({src_id}, {tgt_id})", description, global_config
-    )
-    await knowledge_graph_inst.upsert_edge(
-        src_id,
-        tgt_id,
-        edge_data=dict(
-            weight=weight,
-            description=description,
-            keywords=keywords,
-            source_id=source_id,
-        ),
-    )
-
-    edge_data = dict(
-        src_id=src_id,
-        tgt_id=tgt_id,
-        description=description,
-        keywords=keywords,
-        source_id=source_id,
-    )
-
-    return edge_data
-
-
 async def extract_entities(
     chunks: dict[str, TextChunkSchema],
     knowledge_graph_inst: BaseGraphStorage,
@@ -457,6 +358,54 @@ async def extract_entities(
         }
         await relationships_vdb.upsert(data_for_vdb)
 
+async def _handle_single_entity_extraction(
+    record_attributes: list[str],
+    chunk_key: str,
+):
+    if len(record_attributes) < 4 or record_attributes[0] != '"entity"':
+        return None
+    # add this record as a node in the G
+    entity_name = clean_str(record_attributes[1]).strip('"')
+    if not entity_name.strip():
+        return None
+    entity_type = clean_str(record_attributes[2]).strip('"')
+    entity_description = clean_str(record_attributes[3]).strip('"')
+    entity_source_id = chunk_key
+    return dict(
+        entity_name=entity_name,
+        entity_type=entity_type,
+        description=entity_description,
+        source_id=entity_source_id,
+        metadata={"created_at": time.time()},
+    )
+
+async def _handle_single_relationship_extraction(
+    record_attributes: list[str],
+    chunk_key: str,
+):
+    if len(record_attributes) < 5 or record_attributes[0] != '"relationship"':
+        return None
+    # add this record as edge
+    source = clean_str(record_attributes[1]).strip('"')
+    target = clean_str(record_attributes[2]).strip('"')
+    edge_description = clean_str(record_attributes[3]).strip('"')
+    edge_keywords = clean_str(record_attributes[4]).strip('"')
+    edge_source_id = chunk_key
+    weight = (
+        float(record_attributes[-1].strip('"'))
+        if is_float_regex(record_attributes[-1])
+        else 1.0
+    )
+    return dict(
+        src_id=source,
+        tgt_id=target,
+        weight=weight,
+        description=edge_description,
+        keywords=edge_keywords,
+        source_id=edge_source_id,
+        metadata={"created_at": time.time()},
+    )
+
 async def _merge_nodes_then_upsert(
     entity_name: str,
     nodes_data: list[dict],
@@ -538,53 +487,103 @@ async def _handle_entity_relation_summary(
     summary = await use_llm_func(use_prompt, max_tokens=summary_max_tokens)
     return summary
 
-async def _handle_single_entity_extraction(
-    record_attributes: list[str],
-    chunk_key: str,
+async def _merge_edges_then_upsert(
+    src_id: str,
+    tgt_id: str,
+    edges_data: list[dict],
+    knowledge_graph_inst: BaseGraphStorage,
+    global_config: dict,
 ):
-    if len(record_attributes) < 4 or record_attributes[0] != '"entity"':
-        return None
-    # add this record as a node in the G
-    entity_name = clean_str(record_attributes[1]).strip('"')
-    if not entity_name.strip():
-        return None
-    entity_type = clean_str(record_attributes[2]).strip('"')
-    entity_description = clean_str(record_attributes[3]).strip('"')
-    entity_source_id = chunk_key
-    return dict(
-        entity_name=entity_name,
-        entity_type=entity_type,
-        description=entity_description,
-        source_id=entity_source_id,
-        metadata={"created_at": time.time()},
+    already_weights = []
+    already_source_ids = []
+    already_description = []
+    already_keywords = []
+
+    if await knowledge_graph_inst.has_edge(src_id, tgt_id):
+        already_edge = await knowledge_graph_inst.get_edge(src_id, tgt_id)
+        # Handle the case where get_edge returns None or missing fields
+        if already_edge:
+            # Get weight with default 0.0 if missing
+            already_weights.append(already_edge.get("weight", 0.0))
+
+            # Get source_id with empty string default if missing or None
+            if already_edge.get("source_id") is not None:
+                already_source_ids.extend(
+                    split_string_by_multi_markers(
+                        already_edge["source_id"], [GRAPH_FIELD_SEP]
+                    )
+                )
+
+            # Get description with empty string default if missing or None
+            if already_edge.get("description") is not None:
+                already_description.append(already_edge["description"])
+
+            # Get keywords with empty string default if missing or None
+            if already_edge.get("keywords") is not None:
+                already_keywords.extend(
+                    split_string_by_multi_markers(
+                        already_edge["keywords"], [GRAPH_FIELD_SEP]
+                    )
+                )
+
+    # Process edges_data with None checks
+    weight = sum([dp["weight"] for dp in edges_data] + already_weights)
+    description = GRAPH_FIELD_SEP.join(
+        sorted(
+            set(
+                [dp["description"] for dp in edges_data if dp.get("description")]
+                + already_description
+            )
+        )
+    )
+    keywords = GRAPH_FIELD_SEP.join(
+        sorted(
+            set(
+                [dp["keywords"] for dp in edges_data if dp.get("keywords")]
+                + already_keywords
+            )
+        )
+    )
+    source_id = GRAPH_FIELD_SEP.join(
+        set(
+            [dp["source_id"] for dp in edges_data if dp.get("source_id")]
+            + already_source_ids
+        )
     )
 
-async def _handle_single_relationship_extraction(
-    record_attributes: list[str],
-    chunk_key: str,
-):
-    if len(record_attributes) < 5 or record_attributes[0] != '"relationship"':
-        return None
-    # add this record as edge
-    source = clean_str(record_attributes[1]).strip('"')
-    target = clean_str(record_attributes[2]).strip('"')
-    edge_description = clean_str(record_attributes[3]).strip('"')
-    edge_keywords = clean_str(record_attributes[4]).strip('"')
-    edge_source_id = chunk_key
-    weight = (
-        float(record_attributes[-1].strip('"'))
-        if is_float_regex(record_attributes[-1])
-        else 1.0
+    for need_insert_id in [src_id, tgt_id]:
+        if not (await knowledge_graph_inst.has_node(need_insert_id)):
+            await knowledge_graph_inst.upsert_node(
+                need_insert_id,
+                node_data={
+                    "source_id": source_id,
+                    "description": description,
+                    "entity_type": "UNKNOWN",
+                },
+            )
+    description = await _handle_entity_relation_summary(
+        f"({src_id}, {tgt_id})", description, global_config
     )
-    return dict(
-        src_id=source,
-        tgt_id=target,
-        weight=weight,
-        description=edge_description,
-        keywords=edge_keywords,
-        source_id=edge_source_id,
-        metadata={"created_at": time.time()},
+    await knowledge_graph_inst.upsert_edge(
+        src_id,
+        tgt_id,
+        edge_data=dict(
+            weight=weight,
+            description=description,
+            keywords=keywords,
+            source_id=source_id,
+        ),
     )
+
+    edge_data = dict(
+        src_id=src_id,
+        tgt_id=tgt_id,
+        description=description,
+        keywords=keywords,
+        source_id=source_id,
+    )
+
+    return edge_data
 
 async def kg_query(
     query: str,

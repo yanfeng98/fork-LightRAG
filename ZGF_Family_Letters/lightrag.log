@@ -1,521 +1,521 @@
-2025-03-16 14:37:39,991 - lightrag - INFO - Created new empty graph
-2025-03-16 14:37:39,993 - lightrag - INFO - Load KV full_docs with 0 data
-2025-03-16 14:37:39,993 - lightrag - INFO - Load KV text_chunks with 0 data
-2025-03-16 14:37:39,993 - lightrag - INFO - Load KV llm_response_cache with 0 data
-2025-03-16 14:37:39,993 - lightrag - INFO - Loaded document status storage with 0 records
-2025-03-16 14:37:39,996 - lightrag - INFO - Inserting 1 to doc_status
-2025-03-16 14:37:39,996 - lightrag - INFO - Stored 1 new unique documents
-2025-03-16 14:37:39,997 - lightrag - INFO - Storage Initialization completed!
-2025-03-16 14:37:39,997 - lightrag - INFO - Number of batches to process: 1.
-2025-03-16 14:37:39,997 - lightrag - INFO - Start processing batch 1 of 1.
-2025-03-16 14:39:05,154 - lightrag - INFO - Inserting 1 to doc_status
-2025-03-16 14:39:05,157 - lightrag - INFO - Inserting 98 to chunks
-2025-03-16 14:39:05,158 - lightrag - INFO - Inserting 1 to full_docs
-2025-03-16 14:39:05,158 - lightrag - INFO - Inserting 98 to text_chunks
-2025-03-16 14:39:10,301 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,360 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,410 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,460 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,514 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,606 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,657 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,710 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,763 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,814 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,866 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,918 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:10,969 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,020 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,071 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,120 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,170 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,171 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,171 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,171 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,171 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,172 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,173 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,174 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,175 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,177 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,178 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,179 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,180 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,180 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,180 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,180 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,180 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,180 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,181 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,181 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,181 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,181 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:11,181 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:45,225 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:45,225 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:45,922 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:45,923 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:47,556 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:47,557 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:49,161 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:49,162 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:52,791 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:52,791 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:52,883 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:52,883 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:57,275 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:57,276 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:57,566 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:57,567 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:39:59,190 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:39:59,190 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:01,445 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:01,445 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:03,087 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:03,087 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:06,475 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:06,476 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:12,379 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:12,380 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:14,189 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:14,190 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:24,792 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:24,792 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:25,517 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:25,517 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:30,487 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:30,488 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:32,712 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:32,712 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:34,062 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:34,063 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:34,671 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:34,671 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:45,818 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:45,819 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:48,153 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:48,154 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:50,737 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:50,737 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:52,513 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:52,514 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:53,412 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:53,413 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:54,339 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:54,339 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:56,762 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:56,763 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:58,763 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:58,763 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:40:59,842 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:40:59,842 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:03,955 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:03,955 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:08,879 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:08,879 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:10,112 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:10,113 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:18,127 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:18,127 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:23,604 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:23,604 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:25,489 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:25,490 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:26,858 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:26,859 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:30,229 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:30,229 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:32,241 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:32,241 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:36,286 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:36,286 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:38,304 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:38,304 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:39,357 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:39,357 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:39,595 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:39,596 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:39,795 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:39,795 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:51,141 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:51,141 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:55,189 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:55,190 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:58,788 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:58,790 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:41:58,872 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:41:58,872 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:12,050 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:12,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:12,959 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:12,959 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:14,592 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:14,592 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:17,870 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:17,871 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:19,528 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:19,529 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:24,929 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:24,929 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:29,853 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:29,853 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:29,947 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:29,947 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:30,277 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:30,277 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:31,389 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:31,389 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:35,267 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:35,267 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:40,836 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:40,836 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:52,590 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:52,590 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:56,595 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:56,596 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:42:57,596 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:42:57,596 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:01,599 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:01,599 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:02,263 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:02,263 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:08,727 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:08,728 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:14,715 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:14,717 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:15,446 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:15,446 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:16,565 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:16,565 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:21,139 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:21,139 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:23,277 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:23,277 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:29,301 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:29,302 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:29,790 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:29,790 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:30,948 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:30,948 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:31,798 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:31,798 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:31,851 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:31,851 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:31,913 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:31,914 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:33,318 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:33,319 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:37,424 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:37,425 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:38,780 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:38,781 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:52,504 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:52,504 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:56,251 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:56,252 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:43:59,387 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:43:59,388 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:04,858 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:04,858 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:05,616 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:05,617 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:08,186 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:08,186 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:18,586 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:18,587 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:24,200 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:24,201 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:24,428 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:24,428 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:25,567 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:25,567 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:25,629 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:25,629 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:26,862 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:26,862 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:31,459 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:31,460 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:40,264 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:40,264 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:44:41,416 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:44:41,417 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:45:00,475 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:00,483 - lightrag - INFO -   Chunk 1/98: extracted 28 entities and 15 relationships (deduplicated)
-2025-03-16 14:45:01,189 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:01,189 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:45:01,633 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:01,634 - lightrag - INFO -   Chunk 2/98: extracted 20 entities and 10 relationships (deduplicated)
-2025-03-16 14:45:02,473 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:02,474 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:45:02,527 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:02,527 - lightrag - INFO -   Chunk 3/98: extracted 17 entities and 11 relationships (deduplicated)
-2025-03-16 14:45:07,458 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:07,458 - lightrag - INFO -   Chunk 4/98: extracted 32 entities and 13 relationships (deduplicated)
-2025-03-16 14:45:15,277 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:15,279 - lightrag - INFO -   Chunk 5/98: extracted 15 entities and 11 relationships (deduplicated)
-2025-03-16 14:45:24,332 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:24,332 - lightrag - INFO -   Chunk 6/98: extracted 24 entities and 14 relationships (deduplicated)
-2025-03-16 14:45:26,767 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:26,769 - lightrag - INFO -   Chunk 7/98: extracted 21 entities and 12 relationships (deduplicated)
-2025-03-16 14:45:31,996 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:31,997 - lightrag - INFO -   Chunk 8/98: extracted 22 entities and 12 relationships (deduplicated)
-2025-03-16 14:45:33,385 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:33,386 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:45:36,493 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:36,493 - lightrag - INFO -   Chunk 9/98: extracted 23 entities and 12 relationships (deduplicated)
-2025-03-16 14:45:38,867 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:38,868 - lightrag - INFO -   Chunk 10/98: extracted 31 entities and 18 relationships (deduplicated)
-2025-03-16 14:45:41,916 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:41,916 - lightrag - INFO -   Chunk 11/98: extracted 35 entities and 16 relationships (deduplicated)
-2025-03-16 14:45:44,630 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:44,631 - lightrag - INFO -   Chunk 12/98: extracted 22 entities and 13 relationships (deduplicated)
-2025-03-16 14:45:52,552 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:52,553 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
-2025-03-16 14:45:56,596 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:56,598 - lightrag - INFO -   Chunk 13/98: extracted 23 entities and 18 relationships (deduplicated)
-2025-03-16 14:45:58,050 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:45:58,051 - lightrag - INFO -   Chunk 14/98: extracted 16 entities and 12 relationships (deduplicated)
-2025-03-16 14:46:00,076 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:00,076 - lightrag - INFO -   Chunk 15/98: extracted 14 entities and 9 relationships (deduplicated)
-2025-03-16 14:46:05,310 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:05,311 - lightrag - INFO -   Chunk 16/98: extracted 36 entities and 25 relationships (deduplicated)
-2025-03-16 14:46:06,719 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:06,721 - lightrag - INFO -   Chunk 17/98: extracted 42 entities and 16 relationships (deduplicated)
-2025-03-16 14:46:14,454 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:14,457 - lightrag - INFO -   Chunk 18/98: extracted 31 entities and 21 relationships (deduplicated)
-2025-03-16 14:46:25,695 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:25,698 - lightrag - INFO -   Chunk 19/98: extracted 26 entities and 15 relationships (deduplicated)
-2025-03-16 14:46:30,174 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:30,177 - lightrag - INFO -   Chunk 20/98: extracted 17 entities and 14 relationships (deduplicated)
-2025-03-16 14:46:35,160 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:35,161 - lightrag - INFO -   Chunk 21/98: extracted 22 entities and 13 relationships (deduplicated)
-2025-03-16 14:46:38,900 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:38,903 - lightrag - INFO -   Chunk 22/98: extracted 17 entities and 14 relationships (deduplicated)
-2025-03-16 14:46:45,375 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:45,377 - lightrag - INFO -   Chunk 23/98: extracted 20 entities and 16 relationships (deduplicated)
-2025-03-16 14:46:57,997 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:57,999 - lightrag - INFO -   Chunk 24/98: extracted 26 entities and 21 relationships (deduplicated)
-2025-03-16 14:46:58,446 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:58,449 - lightrag - INFO -   Chunk 25/98: extracted 26 entities and 19 relationships (deduplicated)
-2025-03-16 14:46:59,742 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:46:59,745 - lightrag - INFO -   Chunk 26/98: extracted 21 entities and 19 relationships (deduplicated)
-2025-03-16 14:47:11,043 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:11,046 - lightrag - INFO -   Chunk 27/98: extracted 36 entities and 30 relationships (deduplicated)
-2025-03-16 14:47:15,073 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:15,077 - lightrag - INFO -   Chunk 28/98: extracted 44 entities and 34 relationships (deduplicated)
-2025-03-16 14:47:15,584 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:15,585 - lightrag - INFO -   Chunk 29/98: extracted 20 entities and 16 relationships (deduplicated)
-2025-03-16 14:47:16,691 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:16,694 - lightrag - INFO -   Chunk 30/98: extracted 22 entities and 13 relationships (deduplicated)
-2025-03-16 14:47:22,906 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:22,909 - lightrag - INFO -   Chunk 31/98: extracted 31 entities and 17 relationships (deduplicated)
-2025-03-16 14:47:36,026 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:36,028 - lightrag - INFO -   Chunk 32/98: extracted 26 entities and 13 relationships (deduplicated)
-2025-03-16 14:47:38,432 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:38,433 - lightrag - INFO -   Chunk 33/98: extracted 30 entities and 19 relationships (deduplicated)
-2025-03-16 14:47:39,918 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:39,920 - lightrag - INFO -   Chunk 34/98: extracted 26 entities and 24 relationships (deduplicated)
-2025-03-16 14:47:41,005 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:41,008 - lightrag - INFO -   Chunk 35/98: extracted 31 entities and 18 relationships (deduplicated)
-2025-03-16 14:47:46,014 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:46,016 - lightrag - INFO -   Chunk 36/98: extracted 27 entities and 19 relationships (deduplicated)
-2025-03-16 14:47:47,011 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:47,012 - lightrag - INFO -   Chunk 37/98: extracted 24 entities and 16 relationships (deduplicated)
-2025-03-16 14:47:58,310 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:47:58,314 - lightrag - INFO -   Chunk 38/98: extracted 33 entities and 15 relationships (deduplicated)
-2025-03-16 14:48:06,505 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:06,507 - lightrag - INFO -   Chunk 39/98: extracted 34 entities and 10 relationships (deduplicated)
-2025-03-16 14:48:09,703 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:09,705 - lightrag - INFO -   Chunk 40/98: extracted 30 entities and 23 relationships (deduplicated)
-2025-03-16 14:48:20,824 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:20,825 - lightrag - INFO -   Chunk 41/98: extracted 30 entities and 17 relationships (deduplicated)
-2025-03-16 14:48:20,960 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:20,960 - lightrag - INFO -   Chunk 42/98: extracted 18 entities and 10 relationships (deduplicated)
-2025-03-16 14:48:25,143 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:25,145 - lightrag - INFO -   Chunk 43/98: extracted 23 entities and 17 relationships (deduplicated)
-2025-03-16 14:48:29,748 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:29,749 - lightrag - INFO -   Chunk 44/98: extracted 24 entities and 10 relationships (deduplicated)
-2025-03-16 14:48:30,898 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:30,900 - lightrag - INFO -   Chunk 45/98: extracted 26 entities and 10 relationships (deduplicated)
-2025-03-16 14:48:31,117 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:31,118 - lightrag - INFO -   Chunk 46/98: extracted 25 entities and 19 relationships (deduplicated)
-2025-03-16 14:48:35,797 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:35,798 - lightrag - INFO -   Chunk 47/98: extracted 30 entities and 15 relationships (deduplicated)
-2025-03-16 14:48:42,972 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:42,974 - lightrag - INFO -   Chunk 48/98: extracted 35 entities and 22 relationships (deduplicated)
-2025-03-16 14:48:44,994 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:44,995 - lightrag - INFO -   Chunk 49/98: extracted 39 entities and 13 relationships (deduplicated)
-2025-03-16 14:48:49,365 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:49,366 - lightrag - INFO -   Chunk 50/98: extracted 32 entities and 26 relationships (deduplicated)
-2025-03-16 14:48:53,704 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:48:53,705 - lightrag - INFO -   Chunk 51/98: extracted 35 entities and 28 relationships (deduplicated)
-2025-03-16 14:49:05,896 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:05,898 - lightrag - INFO -   Chunk 52/98: extracted 27 entities and 13 relationships (deduplicated)
-2025-03-16 14:49:11,357 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:11,358 - lightrag - INFO -   Chunk 53/98: extracted 25 entities and 16 relationships (deduplicated)
-2025-03-16 14:49:16,577 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:16,578 - lightrag - INFO -   Chunk 54/98: extracted 38 entities and 25 relationships (deduplicated)
-2025-03-16 14:49:19,435 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:19,436 - lightrag - INFO -   Chunk 55/98: extracted 22 entities and 6 relationships (deduplicated)
-2025-03-16 14:49:21,888 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:21,889 - lightrag - INFO -   Chunk 56/98: extracted 32 entities and 28 relationships (deduplicated)
-2025-03-16 14:49:26,663 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:26,666 - lightrag - INFO -   Chunk 57/98: extracted 23 entities and 19 relationships (deduplicated)
-2025-03-16 14:49:29,447 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:29,449 - lightrag - INFO -   Chunk 58/98: extracted 24 entities and 21 relationships (deduplicated)
-2025-03-16 14:49:35,765 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:35,766 - lightrag - INFO -   Chunk 59/98: extracted 27 entities and 23 relationships (deduplicated)
-2025-03-16 14:49:39,790 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:39,792 - lightrag - INFO -   Chunk 60/98: extracted 29 entities and 25 relationships (deduplicated)
-2025-03-16 14:49:42,490 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:42,493 - lightrag - INFO -   Chunk 61/98: extracted 18 entities and 14 relationships (deduplicated)
-2025-03-16 14:49:44,427 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:44,428 - lightrag - INFO -   Chunk 62/98: extracted 15 entities and 10 relationships (deduplicated)
-2025-03-16 14:49:50,207 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:50,208 - lightrag - INFO -   Chunk 63/98: extracted 24 entities and 14 relationships (deduplicated)
-2025-03-16 14:49:51,907 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:51,908 - lightrag - INFO -   Chunk 64/98: extracted 33 entities and 22 relationships (deduplicated)
-2025-03-16 14:49:53,020 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:49:53,022 - lightrag - INFO -   Chunk 65/98: extracted 20 entities and 7 relationships (deduplicated)
-2025-03-16 14:50:05,933 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:05,934 - lightrag - INFO -   Chunk 66/98: extracted 33 entities and 16 relationships (deduplicated)
-2025-03-16 14:50:09,286 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:09,290 - lightrag - INFO -   Chunk 67/98: extracted 27 entities and 12 relationships (deduplicated)
-2025-03-16 14:50:09,425 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:09,426 - lightrag - INFO -   Chunk 68/98: extracted 25 entities and 13 relationships (deduplicated)
-2025-03-16 14:50:10,363 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:10,366 - lightrag - INFO -   Chunk 69/98: extracted 23 entities and 12 relationships (deduplicated)
-2025-03-16 14:50:17,005 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:17,006 - lightrag - INFO -   Chunk 70/98: extracted 27 entities and 20 relationships (deduplicated)
-2025-03-16 14:50:26,729 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:26,730 - lightrag - INFO -   Chunk 71/98: extracted 13 entities and 11 relationships (deduplicated)
-2025-03-16 14:50:27,521 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:27,526 - lightrag - INFO -   Chunk 72/98: extracted 28 entities and 15 relationships (deduplicated)
-2025-03-16 14:50:41,283 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:41,284 - lightrag - INFO -   Chunk 73/98: extracted 49 entities and 37 relationships (deduplicated)
-2025-03-16 14:50:48,414 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:48,414 - lightrag - INFO -   Chunk 74/98: extracted 49 entities and 17 relationships (deduplicated)
-2025-03-16 14:50:48,466 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:48,468 - lightrag - INFO -   Chunk 75/98: extracted 27 entities and 10 relationships (deduplicated)
-2025-03-16 14:50:50,569 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:50,569 - lightrag - INFO -   Chunk 76/98: extracted 18 entities and 10 relationships (deduplicated)
-2025-03-16 14:50:52,335 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:52,336 - lightrag - INFO -   Chunk 77/98: extracted 26 entities and 23 relationships (deduplicated)
-2025-03-16 14:50:54,438 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:54,439 - lightrag - INFO -   Chunk 78/98: extracted 22 entities and 11 relationships (deduplicated)
-2025-03-16 14:50:56,176 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:56,179 - lightrag - INFO -   Chunk 79/98: extracted 24 entities and 19 relationships (deduplicated)
-2025-03-16 14:50:58,075 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:50:58,075 - lightrag - INFO -   Chunk 80/98: extracted 29 entities and 17 relationships (deduplicated)
-2025-03-16 14:51:22,323 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:22,326 - lightrag - INFO -   Chunk 81/98: extracted 49 entities and 10 relationships (deduplicated)
-2025-03-16 14:51:25,786 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:25,786 - lightrag - INFO -   Chunk 82/98: extracted 24 entities and 15 relationships (deduplicated)
-2025-03-16 14:51:37,220 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:37,221 - lightrag - INFO -   Chunk 83/98: extracted 23 entities and 7 relationships (deduplicated)
-2025-03-16 14:51:39,483 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:39,485 - lightrag - INFO -   Chunk 84/98: extracted 50 entities and 35 relationships (deduplicated)
-2025-03-16 14:51:41,499 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:41,500 - lightrag - INFO -   Chunk 85/98: extracted 29 entities and 22 relationships (deduplicated)
-2025-03-16 14:51:45,813 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:45,815 - lightrag - INFO -   Chunk 86/98: extracted 31 entities and 20 relationships (deduplicated)
-2025-03-16 14:51:48,000 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:48,001 - lightrag - INFO -   Chunk 87/98: extracted 44 entities and 24 relationships (deduplicated)
-2025-03-16 14:51:50,152 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:50,153 - lightrag - INFO -   Chunk 88/98: extracted 27 entities and 16 relationships (deduplicated)
-2025-03-16 14:51:54,522 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:54,523 - lightrag - INFO -   Chunk 89/98: extracted 30 entities and 29 relationships (deduplicated)
-2025-03-16 14:51:56,295 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:56,296 - lightrag - INFO -   Chunk 90/98: extracted 20 entities and 10 relationships (deduplicated)
-2025-03-16 14:51:57,977 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:57,978 - lightrag - INFO -   Chunk 91/98: extracted 66 entities and 40 relationships (deduplicated)
-2025-03-16 14:51:59,956 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:51:59,957 - lightrag - INFO -   Chunk 92/98: extracted 49 entities and 25 relationships (deduplicated)
-2025-03-16 14:52:05,496 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:52:05,498 - lightrag - INFO -   Chunk 93/98: extracted 33 entities and 19 relationships (deduplicated)
-2025-03-16 14:52:22,241 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:52:22,243 - lightrag - INFO -   Chunk 94/98: extracted 41 entities and 25 relationships (deduplicated)
-2025-03-16 14:52:54,926 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:52:54,928 - lightrag - INFO -   Chunk 95/98: extracted 42 entities and 26 relationships (deduplicated)
-2025-03-16 14:53:07,218 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:53:07,219 - lightrag - INFO -   Chunk 96/98: extracted 33 entities and 32 relationships (deduplicated)
-2025-03-16 14:53:23,831 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:53:23,832 - lightrag - INFO -   Chunk 97/98: extracted 43 entities and 17 relationships (deduplicated)
-2025-03-16 14:53:28,827 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:53:28,829 - lightrag - INFO -   Chunk 98/98: extracted 44 entities and 13 relationships (deduplicated)
-2025-03-16 14:53:54,568 - lightrag - INFO - Extracted 1724 entities and 1609 relationships (deduplicated)
-2025-03-16 14:53:54,582 - lightrag - INFO - Inserting 1724 to entities
-2025-03-16 14:54:20,948 - lightrag - INFO - Inserting 1609 to relationships
-2025-03-16 14:54:43,916 - lightrag - INFO - Inserting 1 to doc_status
-2025-03-16 14:54:43,921 - lightrag - INFO - Completed batch 1 of 1.
-2025-03-16 14:54:44,032 - lightrag - INFO - Writing graph with 1779 nodes, 1609 edges
-2025-03-16 14:54:44,264 - lightrag - INFO - All Insert done
-2025-03-16 14:54:44,264 - lightrag - INFO - Document processing pipeline completed
-2025-03-16 14:54:44,266 - lightrag - INFO - Non-embedding cached missed(mode:hybrid type:query)
-2025-03-16 14:54:44,266 - lightrag - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
-2025-03-16 14:54:46,923 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:54:46,923 - lightrag - INFO - Query nodes: Plot, Characters, Setting, Conflict, Resolution, top_k: 60, cosine: 0.2
-2025-03-16 14:54:47,036 - lightrag - INFO - Query edges: Themes, Story analysis, Narrative elements, top_k: 60, cosine: 0.2
-2025-03-16 14:54:47,184 - lightrag - INFO - Global query uses 27 entites, 60 relations, 3 chunks
-2025-03-16 14:54:47,196 - lightrag - INFO - Local query uses 60 entites, 120 relations, 3 chunks
-2025-03-16 14:55:09,284 - lightrag - INFO - Inserting 1 to llm_response_cache
-2025-03-16 14:55:09,313 - lightrag - INFO - Storage Finalization completed!
+2025-03-16 22:58:43,146 - lightrag - INFO - Created new empty graph
+2025-03-16 22:58:43,147 - lightrag - INFO - Load KV full_docs with 0 data
+2025-03-16 22:58:43,147 - lightrag - INFO - Load KV text_chunks with 0 data
+2025-03-16 22:58:43,147 - lightrag - INFO - Load KV llm_response_cache with 0 data
+2025-03-16 22:58:43,148 - lightrag - INFO - Loaded document status storage with 0 records
+2025-03-16 22:58:43,150 - lightrag - INFO - Inserting 1 to doc_status
+2025-03-16 22:58:43,151 - lightrag - INFO - Stored 1 new unique documents
+2025-03-16 22:58:43,151 - lightrag - INFO - Storage Initialization completed!
+2025-03-16 22:58:43,151 - lightrag - INFO - Number of batches to process: 1.
+2025-03-16 22:58:43,151 - lightrag - INFO - Start processing batch 1 of 1.
+2025-03-16 22:58:43,481 - lightrag - INFO - Inserting 1 to doc_status
+2025-03-16 22:58:43,483 - lightrag - INFO - Inserting 98 to chunks
+2025-03-16 22:58:43,483 - lightrag - INFO - Inserting 1 to full_docs
+2025-03-16 22:58:43,483 - lightrag - INFO - Inserting 98 to text_chunks
+2025-03-16 22:58:48,223 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,276 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,329 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,378 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,430 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,481 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,531 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,581 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,630 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,679 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,731 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,784 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,834 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,899 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,949 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:48,998 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,048 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,049 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,050 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,051 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,052 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,053 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,054 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,055 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,056 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,057 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,057 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,057 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,057 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,057 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,094 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,095 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,096 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,096 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,096 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,096 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,096 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:58:49,096 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:18,614 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:18,615 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:22,686 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:22,686 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:26,565 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:26,566 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:29,826 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:29,827 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:30,456 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:30,457 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:32,829 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:32,829 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:33,215 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:33,216 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:39,508 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:39,508 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:44,808 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:44,808 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:46,239 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:46,239 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 22:59:47,333 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 22:59:47,333 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:00,765 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:00,766 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:01,857 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:01,858 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:02,640 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:02,641 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:03,919 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:03,920 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:08,425 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:08,426 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:08,224 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:08,224 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:09,572 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:09,572 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:19,185 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:19,186 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:25,096 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:25,097 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:27,067 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:27,067 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:27,333 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:27,334 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:28,506 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:28,507 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:28,727 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:28,727 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:33,396 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:33,396 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:33,741 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:33,741 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:37,852 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:37,853 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:38,731 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:38,731 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:41,381 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:41,382 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:44,645 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:44,646 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:45,701 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:45,702 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:54,540 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:54,540 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:55,268 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:55,268 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:00:55,988 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:00:55,989 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:02,536 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:02,537 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:09,185 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:09,186 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:10,502 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:10,502 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:14,931 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:14,932 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:14,982 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:14,982 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:21,765 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:21,765 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:24,416 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:24,416 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:25,776 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:25,778 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:36,669 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:36,670 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:43,748 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:43,749 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:44,256 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:44,257 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:45,902 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:45,905 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:48,895 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:48,896 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:52,569 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:52,569 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:53,319 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:53,320 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:55,786 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:55,787 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:57,531 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:57,532 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:01:58,326 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:01:58,328 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:02,085 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:02,086 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:05,431 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:05,432 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:08,074 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:08,074 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:19,847 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:19,848 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:22,490 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:22,491 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:22,711 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:22,712 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:30,569 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:30,569 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:31,042 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:31,043 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:39,032 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:39,033 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:50,676 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:50,676 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:02:59,083 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:02:59,083 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:03,736 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:03,737 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:04,948 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:04,948 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:11,207 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:11,208 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:11,257 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:11,258 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:12,460 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:12,461 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:15,645 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:15,645 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:20,562 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:20,563 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:21,003 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:21,004 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:21,247 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:21,248 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:27,159 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:27,159 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:27,648 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:27,648 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:34,337 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:34,338 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:35,812 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:35,812 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:40,325 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:40,325 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:41,181 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:41,182 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:43,512 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:43,513 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:47,116 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:47,116 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:57,101 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:57,101 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:03:57,487 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:03:57,488 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:05,905 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:05,906 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:08,788 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:08,788 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:15,805 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:15,805 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:19,175 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:19,176 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:21,024 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:21,025 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:28,217 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:28,217 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:36,133 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:36,133 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:39,860 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:39,861 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:41,518 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:41,519 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:47,020 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:47,021 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:04:55,453 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:55,457 - lightrag - INFO -   Chunk 1/98: extracted 14 entities and 12 relationships (deduplicated)
+2025-03-16 23:04:57,465 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:04:57,465 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:05:03,454 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:03,455 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:05:04,728 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:04,729 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:05:10,068 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:10,072 - lightrag - INFO -   Chunk 2/98: extracted 22 entities and 8 relationships (deduplicated)
+2025-03-16 23:05:14,206 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:14,207 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:05:16,302 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:16,304 - lightrag - INFO -   Chunk 3/98: extracted 20 entities and 11 relationships (deduplicated)
+2025-03-16 23:05:18,801 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:18,803 - lightrag - INFO -   Chunk 4/98: extracted 28 entities and 20 relationships (deduplicated)
+2025-03-16 23:05:48,470 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:48,472 - lightrag - INFO -   Chunk 5/98: extracted 28 entities and 10 relationships (deduplicated)
+2025-03-16 23:05:49,439 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:49,442 - lightrag - INFO -   Chunk 6/98: extracted 17 entities and 13 relationships (deduplicated)
+2025-03-16 23:05:58,446 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:58,447 - lightrag - INFO -   Chunk 7/98: extracted 22 entities and 11 relationships (deduplicated)
+2025-03-16 23:05:58,657 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:58,658 - lightrag - INFO -   Chunk 8/98: extracted 16 entities and 11 relationships (deduplicated)
+2025-03-16 23:05:58,718 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:05:58,719 - lightrag - INFO -   Chunk 9/98: extracted 23 entities and 13 relationships (deduplicated)
+2025-03-16 23:06:03,697 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:03,700 - lightrag - INFO -   Chunk 10/98: extracted 19 entities and 13 relationships (deduplicated)
+2025-03-16 23:06:04,281 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:04,281 - lightrag - INFO -   Chunk 11/98: extracted 22 entities and 10 relationships (deduplicated)
+2025-03-16 23:06:06,575 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:06,577 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:06:08,602 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:08,603 - lightrag - INFO -   Chunk 12/98: extracted 34 entities and 22 relationships (deduplicated)
+2025-03-16 23:06:11,233 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:11,233 - lightrag - INFO -   Chunk 13/98: extracted 29 entities and 21 relationships (deduplicated)
+2025-03-16 23:06:11,937 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:11,939 - lightrag - INFO - Non-embedding cached missed(mode:default type:extract)
+2025-03-16 23:06:15,894 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:15,896 - lightrag - INFO -   Chunk 14/98: extracted 26 entities and 18 relationships (deduplicated)
+2025-03-16 23:06:19,863 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:19,866 - lightrag - INFO -   Chunk 15/98: extracted 38 entities and 16 relationships (deduplicated)
+2025-03-16 23:06:24,981 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:24,983 - lightrag - INFO -   Chunk 16/98: extracted 39 entities and 29 relationships (deduplicated)
+2025-03-16 23:06:40,011 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:40,011 - lightrag - INFO -   Chunk 17/98: extracted 32 entities and 8 relationships (deduplicated)
+2025-03-16 23:06:44,529 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:44,530 - lightrag - INFO -   Chunk 18/98: extracted 28 entities and 12 relationships (deduplicated)
+2025-03-16 23:06:46,261 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:46,264 - lightrag - INFO -   Chunk 19/98: extracted 44 entities and 22 relationships (deduplicated)
+2025-03-16 23:06:50,824 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:50,825 - lightrag - INFO -   Chunk 20/98: extracted 25 entities and 19 relationships (deduplicated)
+2025-03-16 23:06:54,197 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:54,199 - lightrag - INFO -   Chunk 21/98: extracted 26 entities and 23 relationships (deduplicated)
+2025-03-16 23:06:59,359 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:06:59,360 - lightrag - INFO -   Chunk 22/98: extracted 28 entities and 18 relationships (deduplicated)
+2025-03-16 23:07:00,787 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:00,790 - lightrag - INFO -   Chunk 23/98: extracted 19 entities and 16 relationships (deduplicated)
+2025-03-16 23:07:12,275 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:12,277 - lightrag - INFO -   Chunk 24/98: extracted 21 entities and 12 relationships (deduplicated)
+2025-03-16 23:07:16,876 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:16,877 - lightrag - INFO -   Chunk 25/98: extracted 21 entities and 15 relationships (deduplicated)
+2025-03-16 23:07:21,415 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:21,416 - lightrag - INFO -   Chunk 26/98: extracted 17 entities and 12 relationships (deduplicated)
+2025-03-16 23:07:25,266 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:25,267 - lightrag - INFO -   Chunk 27/98: extracted 26 entities and 21 relationships (deduplicated)
+2025-03-16 23:07:42,257 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:42,258 - lightrag - INFO -   Chunk 28/98: extracted 27 entities and 16 relationships (deduplicated)
+2025-03-16 23:07:42,514 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:42,515 - lightrag - INFO -   Chunk 29/98: extracted 40 entities and 8 relationships (deduplicated)
+2025-03-16 23:07:44,333 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:44,336 - lightrag - INFO -   Chunk 30/98: extracted 20 entities and 19 relationships (deduplicated)
+2025-03-16 23:07:45,198 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:45,204 - lightrag - INFO -   Chunk 31/98: extracted 30 entities and 13 relationships (deduplicated)
+2025-03-16 23:07:46,164 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:46,167 - lightrag - INFO -   Chunk 32/98: extracted 29 entities and 16 relationships (deduplicated)
+2025-03-16 23:07:48,107 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:48,108 - lightrag - INFO -   Chunk 33/98: extracted 20 entities and 10 relationships (deduplicated)
+2025-03-16 23:07:49,055 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:07:49,056 - lightrag - INFO -   Chunk 34/98: extracted 40 entities and 21 relationships (deduplicated)
+2025-03-16 23:08:00,420 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:00,422 - lightrag - INFO -   Chunk 35/98: extracted 20 entities and 13 relationships (deduplicated)
+2025-03-16 23:08:06,036 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:06,037 - lightrag - INFO -   Chunk 36/98: extracted 36 entities and 15 relationships (deduplicated)
+2025-03-16 23:08:23,832 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:23,833 - lightrag - INFO -   Chunk 37/98: extracted 23 entities and 13 relationships (deduplicated)
+2025-03-16 23:08:26,003 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:26,005 - lightrag - INFO -   Chunk 38/98: extracted 28 entities and 12 relationships (deduplicated)
+2025-03-16 23:08:32,939 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:32,940 - lightrag - INFO -   Chunk 39/98: extracted 20 entities and 13 relationships (deduplicated)
+2025-03-16 23:08:34,128 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:34,130 - lightrag - INFO -   Chunk 40/98: extracted 27 entities and 10 relationships (deduplicated)
+2025-03-16 23:08:49,194 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:49,195 - lightrag - INFO -   Chunk 41/98: extracted 37 entities and 21 relationships (deduplicated)
+2025-03-16 23:08:49,353 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:49,356 - lightrag - INFO -   Chunk 42/98: extracted 38 entities and 17 relationships (deduplicated)
+2025-03-16 23:08:50,947 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:08:50,948 - lightrag - INFO -   Chunk 43/98: extracted 24 entities and 18 relationships (deduplicated)
+2025-03-16 23:09:01,806 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:01,809 - lightrag - INFO -   Chunk 44/98: extracted 23 entities and 16 relationships (deduplicated)
+2025-03-16 23:09:01,953 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:01,955 - lightrag - INFO -   Chunk 45/98: extracted 23 entities and 11 relationships (deduplicated)
+2025-03-16 23:09:06,996 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:06,998 - lightrag - INFO -   Chunk 46/98: extracted 26 entities and 15 relationships (deduplicated)
+2025-03-16 23:09:11,799 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:11,803 - lightrag - INFO -   Chunk 47/98: extracted 27 entities and 13 relationships (deduplicated)
+2025-03-16 23:09:17,107 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:17,108 - lightrag - INFO -   Chunk 48/98: extracted 33 entities and 31 relationships (deduplicated)
+2025-03-16 23:09:20,200 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:20,201 - lightrag - INFO -   Chunk 49/98: extracted 31 entities and 16 relationships (deduplicated)
+2025-03-16 23:09:20,615 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:20,617 - lightrag - INFO -   Chunk 50/98: extracted 34 entities and 24 relationships (deduplicated)
+2025-03-16 23:09:28,509 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:28,510 - lightrag - INFO -   Chunk 51/98: extracted 23 entities and 15 relationships (deduplicated)
+2025-03-16 23:09:37,810 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:37,811 - lightrag - INFO -   Chunk 52/98: extracted 30 entities and 13 relationships (deduplicated)
+2025-03-16 23:09:41,039 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:41,040 - lightrag - INFO -   Chunk 53/98: extracted 26 entities and 13 relationships (deduplicated)
+2025-03-16 23:09:56,085 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:09:56,086 - lightrag - INFO -   Chunk 54/98: extracted 42 entities and 19 relationships (deduplicated)
+2025-03-16 23:10:00,555 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:00,556 - lightrag - INFO -   Chunk 55/98: extracted 42 entities and 27 relationships (deduplicated)
+2025-03-16 23:10:01,418 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:01,419 - lightrag - INFO -   Chunk 56/98: extracted 23 entities and 16 relationships (deduplicated)
+2025-03-16 23:10:02,276 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:02,278 - lightrag - INFO -   Chunk 57/98: extracted 19 entities and 15 relationships (deduplicated)
+2025-03-16 23:10:06,487 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:06,487 - lightrag - INFO -   Chunk 58/98: extracted 23 entities and 12 relationships (deduplicated)
+2025-03-16 23:10:15,492 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:15,495 - lightrag - INFO -   Chunk 59/98: extracted 51 entities and 39 relationships (deduplicated)
+2025-03-16 23:10:17,024 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:17,027 - lightrag - INFO -   Chunk 60/98: extracted 24 entities and 14 relationships (deduplicated)
+2025-03-16 23:10:25,079 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:25,080 - lightrag - INFO -   Chunk 61/98: extracted 19 entities and 17 relationships (deduplicated)
+2025-03-16 23:10:35,787 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:35,788 - lightrag - INFO -   Chunk 62/98: extracted 23 entities and 11 relationships (deduplicated)
+2025-03-16 23:10:40,763 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:40,767 - lightrag - INFO -   Chunk 63/98: extracted 39 entities and 26 relationships (deduplicated)
+2025-03-16 23:10:42,539 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:42,541 - lightrag - INFO -   Chunk 64/98: extracted 25 entities and 21 relationships (deduplicated)
+2025-03-16 23:10:46,091 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:46,094 - lightrag - INFO -   Chunk 65/98: extracted 29 entities and 19 relationships (deduplicated)
+2025-03-16 23:10:47,443 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:47,446 - lightrag - INFO -   Chunk 66/98: extracted 38 entities and 24 relationships (deduplicated)
+2025-03-16 23:10:54,393 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:54,397 - lightrag - INFO -   Chunk 67/98: extracted 30 entities and 18 relationships (deduplicated)
+2025-03-16 23:10:56,380 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:56,380 - lightrag - INFO -   Chunk 68/98: extracted 32 entities and 14 relationships (deduplicated)
+2025-03-16 23:10:56,767 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:56,772 - lightrag - INFO -   Chunk 69/98: extracted 34 entities and 18 relationships (deduplicated)
+2025-03-16 23:10:59,169 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:10:59,170 - lightrag - INFO -   Chunk 70/98: extracted 29 entities and 19 relationships (deduplicated)
+2025-03-16 23:11:07,502 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:07,503 - lightrag - INFO -   Chunk 71/98: extracted 36 entities and 14 relationships (deduplicated)
+2025-03-16 23:11:09,276 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:09,277 - lightrag - INFO -   Chunk 72/98: extracted 22 entities and 19 relationships (deduplicated)
+2025-03-16 23:11:36,647 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:36,650 - lightrag - INFO -   Chunk 73/98: extracted 16 entities and 6 relationships (deduplicated)
+2025-03-16 23:11:37,374 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:37,375 - lightrag - INFO -   Chunk 74/98: extracted 19 entities and 18 relationships (deduplicated)
+2025-03-16 23:11:38,157 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:38,157 - lightrag - INFO -   Chunk 75/98: extracted 27 entities and 21 relationships (deduplicated)
+2025-03-16 23:11:41,007 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:41,008 - lightrag - INFO -   Chunk 76/98: extracted 26 entities and 19 relationships (deduplicated)
+2025-03-16 23:11:44,198 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:44,200 - lightrag - INFO -   Chunk 77/98: extracted 28 entities and 16 relationships (deduplicated)
+2025-03-16 23:11:53,420 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:53,421 - lightrag - INFO -   Chunk 78/98: extracted 35 entities and 18 relationships (deduplicated)
+2025-03-16 23:11:54,031 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:54,032 - lightrag - INFO -   Chunk 79/98: extracted 44 entities and 10 relationships (deduplicated)
+2025-03-16 23:11:58,598 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:58,599 - lightrag - INFO -   Chunk 80/98: extracted 33 entities and 21 relationships (deduplicated)
+2025-03-16 23:11:59,272 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:11:59,273 - lightrag - INFO -   Chunk 81/98: extracted 34 entities and 28 relationships (deduplicated)
+2025-03-16 23:12:01,302 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:01,303 - lightrag - INFO -   Chunk 82/98: extracted 20 entities and 15 relationships (deduplicated)
+2025-03-16 23:12:06,296 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:06,299 - lightrag - INFO -   Chunk 83/98: extracted 23 entities and 19 relationships (deduplicated)
+2025-03-16 23:12:11,642 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:11,646 - lightrag - INFO -   Chunk 84/98: extracted 20 entities and 11 relationships (deduplicated)
+2025-03-16 23:12:13,026 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:13,027 - lightrag - INFO -   Chunk 85/98: extracted 41 entities and 26 relationships (deduplicated)
+2025-03-16 23:12:18,236 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:18,239 - lightrag - INFO -   Chunk 86/98: extracted 28 entities and 23 relationships (deduplicated)
+2025-03-16 23:12:23,414 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:23,415 - lightrag - INFO -   Chunk 87/98: extracted 41 entities and 24 relationships (deduplicated)
+2025-03-16 23:12:26,800 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:26,801 - lightrag - INFO -   Chunk 88/98: extracted 32 entities and 28 relationships (deduplicated)
+2025-03-16 23:12:38,450 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:38,451 - lightrag - INFO -   Chunk 89/98: extracted 25 entities and 9 relationships (deduplicated)
+2025-03-16 23:12:45,639 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:45,639 - lightrag - INFO -   Chunk 90/98: extracted 27 entities and 19 relationships (deduplicated)
+2025-03-16 23:12:55,521 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:12:55,523 - lightrag - INFO -   Chunk 91/98: extracted 58 entities and 37 relationships (deduplicated)
+2025-03-16 23:13:12,234 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:13:12,236 - lightrag - INFO -   Chunk 92/98: extracted 30 entities and 19 relationships (deduplicated)
+2025-03-16 23:13:18,773 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:13:18,775 - lightrag - INFO -   Chunk 93/98: extracted 26 entities and 25 relationships (deduplicated)
+2025-03-16 23:13:25,231 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:13:25,234 - lightrag - INFO -   Chunk 94/98: extracted 34 entities and 16 relationships (deduplicated)
+2025-03-16 23:13:31,008 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:13:31,012 - lightrag - INFO -   Chunk 95/98: extracted 36 entities and 17 relationships (deduplicated)
+2025-03-16 23:13:39,229 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:13:39,236 - lightrag - INFO -   Chunk 96/98: extracted 21 entities and 20 relationships (deduplicated)
+2025-03-16 23:13:53,080 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:13:53,084 - lightrag - INFO -   Chunk 97/98: extracted 38 entities and 25 relationships (deduplicated)
+2025-03-16 23:15:18,220 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:15:18,240 - lightrag - INFO -   Chunk 98/98: extracted 51 entities and 42 relationships (deduplicated)
+2025-03-16 23:15:40,759 - lightrag - INFO - Extracted 1722 entities and 1591 relationships (deduplicated)
+2025-03-16 23:15:40,774 - lightrag - INFO - Inserting 1722 to entities
+2025-03-16 23:16:11,440 - lightrag - INFO - Inserting 1591 to relationships
+2025-03-16 23:16:34,500 - lightrag - INFO - Inserting 1 to doc_status
+2025-03-16 23:16:34,506 - lightrag - INFO - Completed batch 1 of 1.
+2025-03-16 23:16:34,800 - lightrag - INFO - Writing graph with 1780 nodes, 1591 edges
+2025-03-16 23:16:37,318 - lightrag - INFO - All Insert done
+2025-03-16 23:16:37,318 - lightrag - INFO - Document processing pipeline completed
+2025-03-16 23:16:37,319 - lightrag - INFO - Non-embedding cached missed(mode:hybrid type:query)
+2025-03-16 23:16:37,319 - lightrag - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
+2025-03-16 23:16:39,696 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:16:39,697 - lightrag - INFO - Query nodes: Plot, Characters, Setting, Conflict, Resolution, top_k: 60, cosine: 0.2
+2025-03-16 23:16:40,079 - lightrag - INFO - Query edges: Themes, Story, Narrative, top_k: 60, cosine: 0.2
+2025-03-16 23:16:40,223 - lightrag - INFO - Global query uses 26 entites, 60 relations, 3 chunks
+2025-03-16 23:16:40,235 - lightrag - INFO - Local query uses 60 entites, 165 relations, 3 chunks
+2025-03-16 23:17:11,075 - lightrag - INFO - Inserting 1 to llm_response_cache
+2025-03-16 23:17:11,102 - lightrag - INFO - Storage Finalization completed!
