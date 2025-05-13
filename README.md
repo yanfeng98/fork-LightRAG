@@ -40,6 +40,14 @@
 
 ## 安装
 
+在 ~/.config/uv/uv.toml 或者 /etc/uv/uv.toml 填写下面的内容：
+
+```bash
+[[index]]
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
+default = true
+```
+
 ```bash
 pip install uv
 uv python install 3.12
