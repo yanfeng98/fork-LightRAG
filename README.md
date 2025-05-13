@@ -38,6 +38,18 @@
     <a href="https://trendshift.io/repositories/13043" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13043" alt="HKUDS%2FLightRAG | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
 
+## 安装
+
+```bash
+pip install uv
+uv python install 3.12
+uv venv --python 3.12
+source .venv/bin/activate
+uv pip install -e ".[api]"
+uv pip install ollama nano_vectordb
+lightrag-server
+```
+
 ## 🎉 News
 
 - [X] [2025.03.18]🎯📢LightRAG now supports citation functionality, enabling proper source attribution.
