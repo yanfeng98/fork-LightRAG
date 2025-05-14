@@ -1,41 +1,7 @@
 <center><h2>🚀 LightRAG: Simple and Fast Retrieval-Augmented Generation</h2></center>
 
 <div align="center">
-<table border="0" width="100%">
-<tr>
-<td width="100" align="center">
-<img src="./assets/logo.png" width="80" height="80" alt="lightrag">
-</td>
-<td>
-
-<div>
-    <p>
-        <a href='https://lightrag.github.io'><img src='https://img.shields.io/badge/Project-Page-Green'></a>
-        <a href='https://youtu.be/oageL-1I0GE'><img src='https://badges.aleen42.com/src/youtube.svg'></a>
-        <a href='https://arxiv.org/abs/2410.05779'><img src='https://img.shields.io/badge/arXiv-2410.05779-b31b1b'></a>
-        <a href='https://learnopencv.com/lightrag'><img src='https://img.shields.io/badge/LearnOpenCV-blue'></a>
-    </p>
-    <p>
-        <img src='https://img.shields.io/github/stars/hkuds/lightrag?color=green&style=social' />
-        <img src="https://img.shields.io/badge/python-3.10-blue">
-        <a href="https://pypi.org/project/lightrag-hku/"><img src="https://img.shields.io/pypi/v/lightrag-hku.svg"></a>
-        <a href="https://pepy.tech/project/lightrag-hku"><img src="https://static.pepy.tech/badge/lightrag-hku/month"></a>
-    </p>
-    <p>
-        <a href='https://discord.gg/yF2MmDJyGJ'><img src='https://discordapp.com/api/guilds/1296348098003734629/widget.png?style=shield'></a>
-        <a href='https://github.com/HKUDS/LightRAG/issues/285'><img src='https://img.shields.io/badge/群聊-wechat-green'></a>
-    </p>
-</div>
-</td>
-</tr>
-</table>
-
 <img src="./README.assets/b2aaf634151b4706892693ffb43d9093.png" width="800" alt="LightRAG Diagram">
-
-</div>
-
-<div align="center">
-    <a href="https://trendshift.io/repositories/13043" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13043" alt="HKUDS%2FLightRAG | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
 
 ## 安装
@@ -58,24 +24,7 @@ uv pip install ollama nano_vectordb
 lightrag-server
 ```
 
-## 🎉 News
-
-- [X] [2025.03.18]🎯📢LightRAG now supports citation functionality, enabling proper source attribution.
-- [X] [2025.02.05]🎯📢Our team has released [VideoRAG](https://github.com/HKUDS/VideoRAG) understanding extremely long-context videos.
-- [X] [2025.01.13]🎯📢Our team has released [MiniRAG](https://github.com/HKUDS/MiniRAG) making RAG simpler with small models.
-- [X] [2025.01.06]🎯📢You can now [use PostgreSQL for Storage](#using-postgresql-for-storage).
-- [X] [2024.12.31]🎯📢LightRAG now supports [deletion by document ID](https://github.com/HKUDS/LightRAG?tab=readme-ov-file#delete).
-- [X] [2024.11.25]🎯📢LightRAG now supports seamless integration of [custom knowledge graphs](https://github.com/HKUDS/LightRAG?tab=readme-ov-file#insert-custom-kg), empowering users to enhance the system with their own domain expertise.
-- [X] [2024.11.19]🎯📢A comprehensive guide to LightRAG is now available on [LearnOpenCV](https://learnopencv.com/lightrag). Many thanks to the blog author.
-- [X] [2024.11.11]🎯📢LightRAG now supports [deleting entities by their names](https://github.com/HKUDS/LightRAG?tab=readme-ov-file#delete).
-- [X] [2024.11.09]🎯📢Introducing the [LightRAG Gui](https://lightrag-gui.streamlit.app), which allows you to insert, query, visualize, and download LightRAG knowledge.
-- [X] [2024.11.04]🎯📢You can now [use Neo4J for Storage](https://github.com/HKUDS/LightRAG?tab=readme-ov-file#using-neo4j-for-storage).
-- [X] [2024.10.29]🎯📢LightRAG now supports multiple file types, including PDF, DOC, PPT, and CSV via `textract`.
-- [X] [2024.10.20]🎯📢We've added a new feature to LightRAG: Graph Visualization.
-- [X] [2024.10.18]🎯📢We've added a link to a [LightRAG Introduction Video](https://youtu.be/oageL-1I0GE). Thanks to the author!
-- [X] [2024.10.17]🎯📢We have created a [Discord channel](https://discord.gg/yF2MmDJyGJ)! Welcome to join for sharing and discussions! 🎉🎉
-- [X] [2024.10.16]🎯📢LightRAG now supports [Ollama models](https://github.com/HKUDS/LightRAG?tab=readme-ov-file#quick-start)!
-- [X] [2024.10.15]🎯📢LightRAG now supports [Hugging Face models](https://github.com/HKUDS/LightRAG?tab=readme-ov-file#quick-start)!
+## Algorithm Flowchart
 
 <details>
   <summary style="font-size: 1.4em; font-weight: bold; cursor: pointer; display: list-item;">
@@ -92,8 +41,6 @@ lightrag-server
 ## Installation
 
 ### Install LightRAG Server
-
-The LightRAG Server is designed to provide Web UI and API support. The Web UI facilitates document indexing, knowledge graph exploration, and a simple RAG query interface. LightRAG Server also provide an Ollama compatible interfaces, aiming to emulate LightRAG as an Ollama chat model. This allows AI chat bot, such as Open WebUI, to access LightRAG easily.
 
 * Install from PyPI
 
@@ -121,8 +68,6 @@ cp env.example .env
 docker compose up
 ```
 
-> Historical versions of LightRAG docker images can be found here: [LightRAG Docker Images]( https://github.com/HKUDS/LightRAG/pkgs/container/lightrag)
-
 ### Install  LightRAG Core
 
 * Install from source (Recommend)
@@ -146,8 +91,6 @@ pip install lightrag-hku
 
 ### Quick Start for LightRAG core
 
-To get started with LightRAG core, refer to the sample codes available in the `examples` folder. Additionally, a [video demo](https://www.youtube.com/watch?v=g21royNJ4fw) demonstration is provided to guide you through the local setup process. If you already possess an OpenAI API key, you can run the demo right away:
-
 ```bash
 ### you should run the demo code with project folder
 cd LightRAG
@@ -159,17 +102,9 @@ curl https://raw.githubusercontent.com/gusye1234/nano-graphrag/main/tests/mock_d
 python examples/lightrag_openai_demo.py
 ```
 
-For a streaming response implementation example, please see `examples/lightrag_openai_compatible_demo.py`. Prior to execution, ensure you modify the sample code’s LLM and embedding configurations accordingly.
-
-**Note 1**: When running the demo program, please be aware that different test scripts may use different embedding models. If you switch to a different embedding model, you must clear the data directory (`./dickens`); otherwise, the program may encounter errors. If you wish to retain the LLM cache, you can preserve the `kv_store_llm_response_cache.json` file while clearing the data directory.
-
-**Note 2**: Only `lightrag_openai_demo.py` and `lightrag_openai_compatible_demo.py` are officially supported sample codes. Other sample files are community contributions that haven't undergone full testing and optimization.
-
 ## Programing with LightRAG Core
 
 ### A Simple Program
-
-Use the below Python snippet to initialize LightRAG, insert text to it, and perform queries:
 
 ```python
 import os
@@ -220,12 +155,6 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-Important notes for the above snippet:
-
-- Export your OPENAI_API_KEY environment variable before running the script.
-- This program uses the default storage settings for LightRAG, so all data will be persisted to WORKING_DIR/rag_storage.
-- This program demonstrates only the simplest way to initialize a LightRAG object: Injecting the embedding and LLM functions, and initializing storage and pipeline status after creating the LightRAG object.
-
 ### LightRAG init parameters
 
 A full list of LightRAG init parameters:
@@ -266,8 +195,6 @@ A full list of LightRAG init parameters:
 </details>
 
 ### Query Param
-
-Use QueryParam to control the behavior your query:
 
 ```python
 class QueryParam:
@@ -335,12 +262,8 @@ class QueryParam:
 
 ### LLM and Embedding Injection
 
-LightRAG requires the utilization of LLM and Embedding models to accomplish document indexing and querying tasks. During the initialization phase, it is necessary to inject the invocation methods of the relevant models into LightRAG：
-
 <details>
 <summary> <b>Using Open AI-like APIs</b> </summary>
-
-* LightRAG also supports Open AI-like chat/embeddings APIs:
 
 ```python
 async def llm_model_func(
@@ -413,11 +336,6 @@ rag = LightRAG(
 
 <details>
 <summary> <b>Using Ollama Models</b> </summary>
-**Overview**
-
-If you want to use Ollama models, you need to pull model you plan to use and embedding model, for example `nomic-embed-text`.
-
-Then you only need to set LightRAG as follows:
 
 ```python
 # Initialize LightRAG with Ollama model
