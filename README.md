@@ -309,10 +309,6 @@ async def initialize_rag():
 <details>
 <summary> <b>Using Hugging Face Models</b> </summary>
 
-* If you want to use Hugging Face models, you only need to set LightRAG as follows:
-
-See `lightrag_hf_demo.py`
-
 ```python
 # Initialize LightRAG with Hugging Face model
 rag = LightRAG(
@@ -406,10 +402,6 @@ rag = LightRAG(
     ),
 )
 ```
-
-* **Low RAM GPUs**
-
-In order to run this experiment on low RAM GPU you should select small model and tune context window (increasing context increase memory consumption). For example, running this ollama example on repurposed mining GPU with 6Gb of RAM required to set context size to 26k while using `gemma2:2b`. It was able to find 197 entities and 19 relations on `book.txt`.
 
 </details>
 <details>
@@ -572,7 +564,7 @@ rag = LightRAG(
 rag.insert(["TEXT1", "TEXT2", "TEXT3", ...])  # Documents will be processed in batches of 4
 ```
 
-The `max_parallel_insert` parameter determines the number of documents processed concurrently in the document indexing pipeline. If unspecified, the default value is **2**. We recommend keeping this setting **below 10**, as the performance bottleneck typically lies with the LLM (Large Language Model) processing.The `max_parallel_insert` parameter determines the number of documents processed concurrently in the document indexing pipeline. If unspecified, the default value is **2**. We recommend keeping this setting **below 10**, as the performance bottleneck typically lies with the LLM (Large Language Model) processing.
+The `max_parallel_insert` parameter determines the number of documents processed concurrently in the document indexing pipeline. If unspecified, the default value is **2**. We recommend keeping this setting **below 10**, as the performance bottleneck typically lies with the LLM (Large Language Model) processing.
 
 </details>
 
@@ -644,13 +636,9 @@ rag.insert(documents, file_paths=file_paths)
 
 ### Storage
 
-LightRAG uses four types of storage, each of which has multiple implementation options. When initializing LightRAG, the implementation schemes for these four types of storage can be set through parameters. For details, please refer to the previous LightRAG initialization parameters.
-
 <details>
 <summary> <b>Using Neo4J for Storage</b> </summary>
 
-* For production level scenarios you will most likely want to leverage an enterprise solution
-* for KG storage. Running Neo4J in Docker is recommended for seamless local testing.
 * See: https://hub.docker.com/_/neo4j
 
 ```python
@@ -680,8 +668,6 @@ async def initialize_rag():
 
     return rag
 ```
-
-see test_neo4j.py for a working example.
 
 </details>
 
