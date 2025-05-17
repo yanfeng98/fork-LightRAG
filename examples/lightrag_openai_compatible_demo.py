@@ -86,15 +86,15 @@ if not os.path.exists(WORKING_DIR):
 
 
 async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
+    prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:
     return await openai_complete_if_cache(
-        os.getenv("LLM_MODEL", "deepseek-chat"),
+        os.getenv("LLM_MODEL", "deepseek-v3-250324"),
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
+        base_url=os.getenv("LLM_BINDING_HOST") or os.getenv("OPENAI_API_BASE"),
         api_key=os.getenv("LLM_BINDING_API_KEY") or os.getenv("OPENAI_API_KEY"),
-        base_url=os.getenv("LLM_BINDING_HOST", "https://api.deepseek.com"),
         **kwargs,
     )
 
@@ -110,11 +110,11 @@ async def initialize_rag():
         working_dir=WORKING_DIR,
         llm_model_func=llm_model_func,
         embedding_func=EmbeddingFunc(
-            embedding_dim=int(os.getenv("EMBEDDING_DIM", "1024")),
+            embedding_dim=int(os.getenv("EMBEDDING_DIM", "768")),
             max_token_size=int(os.getenv("MAX_EMBED_TOKENS", "8192")),
             func=lambda texts: ollama_embed(
                 texts,
-                embed_model=os.getenv("EMBEDDING_MODEL", "bge-m3:latest"),
+                embed_model=os.getenv("EMBEDDING_MODEL", "nomic-embed-text:latest"),
                 host=os.getenv("EMBEDDING_BINDING_HOST", "http://localhost:11434"),
             ),
         ),
@@ -161,44 +161,44 @@ async def main():
         with open("./book.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
-        # Perform naive search
-        print("\n=====================")
-        print("Query mode: naive")
-        print("=====================")
-        resp = await rag.aquery(
-            "What are the top themes in this story?",
-            param=QueryParam(mode="naive", stream=True),
-        )
-        if inspect.isasyncgen(resp):
-            await print_stream(resp)
-        else:
-            print(resp)
+        # # Perform naive search
+        # print("\n=====================")
+        # print("Query mode: naive")
+        # print("=====================")
+        # resp = await rag.aquery(
+        #     "What are the top themes in this story?",
+        #     param=QueryParam(mode="naive", stream=True),
+        # )
+        # if inspect.isasyncgen(resp):
+        #     await print_stream(resp)
+        # else:
+        #     print(resp)
 
-        # Perform local search
-        print("\n=====================")
-        print("Query mode: local")
-        print("=====================")
-        resp = await rag.aquery(
-            "What are the top themes in this story?",
-            param=QueryParam(mode="local", stream=True),
-        )
-        if inspect.isasyncgen(resp):
-            await print_stream(resp)
-        else:
-            print(resp)
+        # # Perform local search
+        # print("\n=====================")
+        # print("Query mode: local")
+        # print("=====================")
+        # resp = await rag.aquery(
+        #     "What are the top themes in this story?",
+        #     param=QueryParam(mode="local", stream=True),
+        # )
+        # if inspect.isasyncgen(resp):
+        #     await print_stream(resp)
+        # else:
+        #     print(resp)
 
-        # Perform global search
-        print("\n=====================")
-        print("Query mode: global")
-        print("=====================")
-        resp = await rag.aquery(
-            "What are the top themes in this story?",
-            param=QueryParam(mode="global", stream=True),
-        )
-        if inspect.isasyncgen(resp):
-            await print_stream(resp)
-        else:
-            print(resp)
+        # # Perform global search
+        # print("\n=====================")
+        # print("Query mode: global")
+        # print("=====================")
+        # resp = await rag.aquery(
+        #     "What are the top themes in this story?",
+        #     param=QueryParam(mode="global", stream=True),
+        # )
+        # if inspect.isasyncgen(resp):
+        #     await print_stream(resp)
+        # else:
+        #     print(resp)
 
         # Perform hybrid search
         print("\n=====================")
@@ -221,7 +221,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Configure logging before running the main function
     configure_logging()
     asyncio.run(main())
     print("\nDone!")

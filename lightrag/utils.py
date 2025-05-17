@@ -66,6 +66,10 @@ load_dotenv(dotenv_path=".env", override=False)
 
 VERBOSE_DEBUG = os.getenv("VERBOSE", "false").lower() == "true"
 
+def set_verbose_debug(enabled: bool):
+    """Enable or disable verbose debug output"""
+    global VERBOSE_DEBUG
+    VERBOSE_DEBUG = enabled
 
 def verbose_debug(msg: str, *args, **kwargs):
     """Function for outputting detailed debug information.
@@ -91,12 +95,46 @@ def verbose_debug(msg: str, *args, **kwargs):
         )
         logger.debug(truncated_msg, **kwargs)
 
+def safe_unicode_decode(content):
+    # Regular expression to find all Unicode escape sequences of the form \uXXXX
+    unicode_escape_pattern = re.compile(r"\\u([0-9a-fA-F]{4})")
 
-def set_verbose_debug(enabled: bool):
-    """Enable or disable verbose debug output"""
-    global VERBOSE_DEBUG
-    VERBOSE_DEBUG = enabled
+    # Function to replace the Unicode escape with the actual character
+    def replace_unicode_escape(match):
+        # Convert the matched hexadecimal value into the actual Unicode character
+        return chr(int(match.group(1), 16))
 
+    # Perform the substitution
+    decoded_content = unicode_escape_pattern.sub(
+        replace_unicode_escape, content.decode("utf-8")
+    )
+
+    return decoded_content
+
+def convert_response_to_json(response: str) -> dict[str, Any]:
+    json_str = locate_json_string_body_from_string(response)
+    assert json_str is not None, f"Unable to parse JSON from response: {response}"
+    try:
+        data = json.loads(json_str)
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON: {json_str}")
+        raise e from None
+
+def locate_json_string_body_from_string(content: str) -> str | None:
+    """Locate the JSON string body from a string"""
+    try:
+        maybe_json_str = re.search(r"{.*}", content, re.DOTALL)
+        if maybe_json_str is not None:
+            maybe_json_str = maybe_json_str.group(0)
+            maybe_json_str = maybe_json_str.replace("\\n", "")
+            maybe_json_str = maybe_json_str.replace("\n", "")
+            maybe_json_str = maybe_json_str.replace("'", '"')
+            return maybe_json_str
+    except Exception:
+        pass
+
+        return None
 
 statistic_data = {"llm_call": 0, "llm_cache": 0, "embed_call": 0}
 
@@ -240,43 +278,6 @@ class EmbeddingFunc:
 
     async def __call__(self, *args, **kwargs) -> np.ndarray:
         return await self.func(*args, **kwargs)
-
-
-def locate_json_string_body_from_string(content: str) -> str | None:
-    """Locate the JSON string body from a string"""
-    try:
-        maybe_json_str = re.search(r"{.*}", content, re.DOTALL)
-        if maybe_json_str is not None:
-            maybe_json_str = maybe_json_str.group(0)
-            maybe_json_str = maybe_json_str.replace("\\n", "")
-            maybe_json_str = maybe_json_str.replace("\n", "")
-            maybe_json_str = maybe_json_str.replace("'", '"')
-            # json.loads(maybe_json_str) # don't check here, cannot validate schema after all
-            return maybe_json_str
-    except Exception:
-        pass
-        # try:
-        #     content = (
-        #         content.replace(kw_prompt[:-1], "")
-        #         .replace("user", "")
-        #         .replace("model", "")
-        #         .strip()
-        #     )
-        #     maybe_json_str = "{" + content.split("{")[1].split("}")[0] + "}"
-        #     json.loads(maybe_json_str)
-
-        return None
-
-
-def convert_response_to_json(response: str) -> dict[str, Any]:
-    json_str = locate_json_string_body_from_string(response)
-    assert json_str is not None, f"Unable to parse JSON from response: {response}"
-    try:
-        data = json.loads(json_str)
-        return data
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON: {json_str}")
-        raise e from None
 
 
 def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
@@ -1111,24 +1112,6 @@ async def save_to_cache(hashing_kv, cache_data: CacheData):
 
     # Only upsert if there's actual new content
     await hashing_kv.upsert({cache_data.mode: mode_cache})
-
-
-def safe_unicode_decode(content):
-    # Regular expression to find all Unicode escape sequences of the form \uXXXX
-    unicode_escape_pattern = re.compile(r"\\u([0-9a-fA-F]{4})")
-
-    # Function to replace the Unicode escape with the actual character
-    def replace_unicode_escape(match):
-        # Convert the matched hexadecimal value into the actual Unicode character
-        return chr(int(match.group(1), 16))
-
-    # Perform the substitution
-    decoded_content = unicode_escape_pattern.sub(
-        replace_unicode_escape, content.decode("utf-8")
-    )
-
-    return decoded_content
-
 
 def exists_func(obj, func_name: str) -> bool:
     """Check if a function exists in an object or not.

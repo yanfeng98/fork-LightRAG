@@ -6,21 +6,6 @@ from multiprocessing import Manager
 from typing import Any, Dict, Optional, Union, TypeVar, Generic
 
 
-# Define a direct print function for critical logs that must be visible in all processes
-def direct_log(message, level="INFO", enable_output: bool = True):
-    """
-    Log a message directly to stderr to ensure visibility in all processes,
-    including the Gunicorn master process.
-
-    Args:
-        message: The message to log
-        level: Log level (default: "INFO")
-        enable_output: Whether to actually output the log (default: True)
-    """
-    if enable_output:
-        print(f"{level}: {message}", file=sys.stderr, flush=True)
-
-
 T = TypeVar("T")
 LockType = Union[ProcessLock, asyncio.Lock]
 
@@ -43,6 +28,104 @@ _data_init_lock: Optional[LockType] = None
 
 # async locks for coroutine synchronization in multiprocess mode
 _async_locks: Optional[Dict[str, asyncio.Lock]] = None
+
+
+def initialize_share_data(workers: int = 1):
+    """
+    Initialize shared storage data for single or multi-process mode.
+
+    When used with Gunicorn's preload feature, this function is called once in the
+    master process before forking worker processes, allowing all workers to share
+    the same initialized data.
+
+    In single-process mode, this function is called in FASTAPI lifespan function.
+
+    The function determines whether to use cross-process shared variables for data storage
+    based on the number of workers. If workers=1, it uses thread locks and local dictionaries.
+    If workers>1, it uses process locks and shared dictionaries managed by multiprocessing.Manager.
+
+    Args:
+        workers (int): Number of worker processes. If 1, single-process mode is used.
+                      If > 1, multi-process mode with shared memory is used.
+    """
+    global \
+        _manager, \
+        _workers, \
+        _is_multiprocess, \
+        _storage_lock, \
+        _internal_lock, \
+        _pipeline_status_lock, \
+        _graph_db_lock, \
+        _data_init_lock, \
+        _shared_dicts, \
+        _init_flags, \
+        _initialized, \
+        _update_flags, \
+        _async_locks
+
+    # Check if already initialized
+    if _initialized:
+        direct_log(
+            f"Process {os.getpid()} Shared-Data already initialized (multiprocess={_is_multiprocess})"
+        )
+        return
+
+    _workers = workers
+
+    if workers > 1:
+        _is_multiprocess = True
+        _manager = Manager()
+        _internal_lock = _manager.Lock()
+        _storage_lock = _manager.Lock()
+        _pipeline_status_lock = _manager.Lock()
+        _graph_db_lock = _manager.Lock()
+        _data_init_lock = _manager.Lock()
+        _shared_dicts = _manager.dict()
+        _init_flags = _manager.dict()
+        _update_flags = _manager.dict()
+
+        # Initialize async locks for multiprocess mode
+        _async_locks = {
+            "internal_lock": asyncio.Lock(),
+            "storage_lock": asyncio.Lock(),
+            "pipeline_status_lock": asyncio.Lock(),
+            "graph_db_lock": asyncio.Lock(),
+            "data_init_lock": asyncio.Lock(),
+        }
+
+        direct_log(
+            f"Process {os.getpid()} Shared-Data created for Multiple Process (workers={workers})"
+        )
+    else:
+        _is_multiprocess = False
+        _internal_lock = asyncio.Lock()
+        _storage_lock = asyncio.Lock()
+        _pipeline_status_lock = asyncio.Lock()
+        _graph_db_lock = asyncio.Lock()
+        _data_init_lock = asyncio.Lock()
+        _shared_dicts = {}
+        _init_flags = {}
+        _update_flags = {}
+        _async_locks = None  # No need for async locks in single process mode
+        direct_log(f"Process {os.getpid()} Shared-Data created for Single Process")
+
+    # Mark as initialized
+    _initialized = True
+
+
+# Define a direct print function for critical logs that must be visible in all processes
+def direct_log(message, level="INFO", enable_output: bool = True):
+    """
+    Log a message directly to stderr to ensure visibility in all processes,
+    including the Gunicorn master process.
+
+    Args:
+        message: The message to log
+        level: Log level (default: "INFO")
+        enable_output: Whether to actually output the log (default: True)
+    """
+    if enable_output:
+        print(f"{level}: {message}", file=sys.stderr, flush=True)
 
 
 class UnifiedLock(Generic[T]):
@@ -269,90 +352,6 @@ def get_data_init_lock(enable_logging: bool = False) -> UnifiedLock:
         enable_logging=enable_logging,
         async_lock=async_lock,
     )
-
-
-def initialize_share_data(workers: int = 1):
-    """
-    Initialize shared storage data for single or multi-process mode.
-
-    When used with Gunicorn's preload feature, this function is called once in the
-    master process before forking worker processes, allowing all workers to share
-    the same initialized data.
-
-    In single-process mode, this function is called in FASTAPI lifespan function.
-
-    The function determines whether to use cross-process shared variables for data storage
-    based on the number of workers. If workers=1, it uses thread locks and local dictionaries.
-    If workers>1, it uses process locks and shared dictionaries managed by multiprocessing.Manager.
-
-    Args:
-        workers (int): Number of worker processes. If 1, single-process mode is used.
-                      If > 1, multi-process mode with shared memory is used.
-    """
-    global \
-        _manager, \
-        _workers, \
-        _is_multiprocess, \
-        _storage_lock, \
-        _internal_lock, \
-        _pipeline_status_lock, \
-        _graph_db_lock, \
-        _data_init_lock, \
-        _shared_dicts, \
-        _init_flags, \
-        _initialized, \
-        _update_flags, \
-        _async_locks
-
-    # Check if already initialized
-    if _initialized:
-        direct_log(
-            f"Process {os.getpid()} Shared-Data already initialized (multiprocess={_is_multiprocess})"
-        )
-        return
-
-    _workers = workers
-
-    if workers > 1:
-        _is_multiprocess = True
-        _manager = Manager()
-        _internal_lock = _manager.Lock()
-        _storage_lock = _manager.Lock()
-        _pipeline_status_lock = _manager.Lock()
-        _graph_db_lock = _manager.Lock()
-        _data_init_lock = _manager.Lock()
-        _shared_dicts = _manager.dict()
-        _init_flags = _manager.dict()
-        _update_flags = _manager.dict()
-
-        # Initialize async locks for multiprocess mode
-        _async_locks = {
-            "internal_lock": asyncio.Lock(),
-            "storage_lock": asyncio.Lock(),
-            "pipeline_status_lock": asyncio.Lock(),
-            "graph_db_lock": asyncio.Lock(),
-            "data_init_lock": asyncio.Lock(),
-        }
-
-        direct_log(
-            f"Process {os.getpid()} Shared-Data created for Multiple Process (workers={workers})"
-        )
-    else:
-        _is_multiprocess = False
-        _internal_lock = asyncio.Lock()
-        _storage_lock = asyncio.Lock()
-        _pipeline_status_lock = asyncio.Lock()
-        _graph_db_lock = asyncio.Lock()
-        _data_init_lock = asyncio.Lock()
-        _shared_dicts = {}
-        _init_flags = {}
-        _update_flags = {}
-        _async_locks = None  # No need for async locks in single process mode
-        direct_log(f"Process {os.getpid()} Shared-Data created for Single Process")
-
-    # Mark as initialized
-    _initialized = True
-
 
 async def initialize_pipeline_status():
     """
