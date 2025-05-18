@@ -53,10 +53,10 @@ class NanoVectorDBStorage(BaseVectorStorage):
 
     async def initialize(self):
         """Initialize storage data"""
-        # Get the update flag for cross-process update notification
-        self.storage_updated = await get_update_flag(self.namespace)
         # Get the storage lock for use in other methods
         self._storage_lock = get_storage_lock(enable_logging=False)
+        # Get the update flag for cross-process update notification
+        self.storage_updated = await get_update_flag(self.namespace)
 
     async def _get_client(self):
         """Check if the storage should be reloaded"""

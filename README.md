@@ -15,6 +15,8 @@ default = true
 ```
 
 ```bash
+git clone git@github.com:yanfeng98/fork-LightRAG.git
+cd fork-LightRAG
 pip install uv
 uv python install 3.12
 uv venv --python 3.12
@@ -22,6 +24,18 @@ source .venv/bin/activate
 uv pip install -e ".[api]"
 uv pip install ollama nano_vectordb
 lightrag-server
+```
+
+### Install LightRAG Server
+
+* Launching the LightRAG Server with Docker Compose
+
+```bash
+git clone git@github.com:yanfeng98/fork-LightRAG.git
+cd fork-LightRAG
+cp env.example .env
+# modify LLM and Embedding settings in .env
+docker compose up
 ```
 
 ## Algorithm Flowchart
@@ -37,51 +51,6 @@ lightrag-server
 *Figure 2: LightRAG Retrieval and Querying Flowchart - Img Caption : [Source](https://learnopencv.com/lightrag/)*
 
 </details>
-
-## Installation
-
-### Install LightRAG Server
-
-* Install from PyPI
-
-```bash
-pip install "lightrag-hku[api]"
-```
-
-* Installation from Source
-
-```bash
-git clone https://github.com/HKUDS/LightRAG.git
-cd LightRAG
-# create a Python virtual enviroment if neccesary
-# Install in editable mode with API support
-pip install -e ".[api]"
-```
-
-* Launching the LightRAG Server with Docker Compose
-
-```
-git clone https://github.com/HKUDS/LightRAG.git
-cd LightRAG
-cp env.example .env
-# modify LLM and Embedding settings in .env
-docker compose up
-```
-
-### Install  LightRAG Core
-
-* Install from source (Recommend)
-
-```bash
-cd LightRAG
-pip install -e .
-```
-
-* Install from PyPI
-
-```bash
-pip install lightrag-hku
-```
 
 ## Quick Start
 

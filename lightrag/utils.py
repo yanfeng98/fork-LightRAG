@@ -135,6 +135,161 @@ def locate_json_string_body_from_string(content: str) -> str | None:
 
         return None
 
+def check_storage_env_vars(storage_name: str) -> None:
+    """Check if all required environment variables for storage implementation exist
+
+    Args:
+        storage_name: Storage implementation name
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    from lightrag.kg import STORAGE_ENV_REQUIREMENTS
+
+    required_vars = STORAGE_ENV_REQUIREMENTS.get(storage_name, [])
+    missing_vars = [var for var in required_vars if var not in os.environ]
+
+    if missing_vars:
+        raise ValueError(
+            f"Storage implementation '{storage_name}' requires the following "
+            f"environment variables: {', '.join(missing_vars)}"
+        )
+
+class TokenizerInterface(Protocol):
+    """
+    Defines the interface for a tokenizer, requiring encode and decode methods.
+    """
+
+    def encode(self, content: str) -> List[int]:
+        """Encodes a string into a list of tokens."""
+        ...
+
+    def decode(self, tokens: List[int]) -> str:
+        """Decodes a list of tokens into a string."""
+        ...
+
+
+class Tokenizer:
+    """
+    A wrapper around a tokenizer to provide a consistent interface for encoding and decoding.
+    """
+
+    def __init__(self, model_name: str, tokenizer: TokenizerInterface):
+        """
+        Initializes the Tokenizer with a tokenizer model name and a tokenizer instance.
+
+        Args:
+            model_name: The associated model name for the tokenizer.
+            tokenizer: An instance of a class implementing the TokenizerInterface.
+        """
+        self.model_name: str = model_name
+        self.tokenizer: TokenizerInterface = tokenizer
+
+    def encode(self, content: str) -> List[int]:
+        """
+        Encodes a string into a list of tokens using the underlying tokenizer.
+
+        Args:
+            content: The string to encode.
+
+        Returns:
+            A list of integer tokens.
+        """
+        return self.tokenizer.encode(content)
+
+    def decode(self, tokens: List[int]) -> str:
+        """
+        Decodes a list of tokens into a string using the underlying tokenizer.
+
+        Args:
+            tokens: A list of integer tokens to decode.
+
+        Returns:
+            The decoded string.
+        """
+        return self.tokenizer.decode(tokens)
+
+
+class TiktokenTokenizer(Tokenizer):
+    """
+    A Tokenizer implementation using the tiktoken library.
+    """
+
+    def __init__(self, model_name: str = "gpt-4o-mini"):
+        """
+        Initializes the TiktokenTokenizer with a specified model name.
+
+        Args:
+            model_name: The model name for the tiktoken tokenizer to use.  Defaults to "gpt-4o-mini".
+
+        Raises:
+            ImportError: If tiktoken is not installed.
+            ValueError: If the model_name is invalid.
+        """
+        try:
+            import tiktoken
+        except ImportError:
+            raise ImportError(
+                "tiktoken is not installed. Please install it with `pip install tiktoken` or define custom `tokenizer_func`."
+            )
+
+        try:
+            tokenizer = tiktoken.encoding_for_model(model_name)
+            super().__init__(model_name=model_name, tokenizer=tokenizer)
+        except KeyError:
+            raise ValueError(f"Invalid model_name: {model_name}.")
+
+@dataclass
+class EmbeddingFunc:
+    embedding_dim: int
+    max_token_size: int
+    func: callable
+
+    async def __call__(self, *args, **kwargs) -> np.ndarray:
+        return await self.func(*args, **kwargs)
+
+def lazy_external_import(module_name: str, class_name: str) -> Callable[..., Any]:
+    """Lazily import a class from an external module based on the package of the caller."""
+    # Get the caller's module and package
+    import inspect
+
+    caller_frame = inspect.currentframe().f_back
+    module = inspect.getmodule(caller_frame)
+    package = module.__package__ if module else None
+
+    def import_class(*args: Any, **kwargs: Any):
+        import importlib
+
+        module = importlib.import_module(module_name, package=package)
+        cls = getattr(module, class_name)
+        return cls(*args, **kwargs)
+
+    return import_class
+
+def always_get_an_event_loop() -> asyncio.AbstractEventLoop:
+    """
+    Ensure that there is always an event loop available.
+
+    This function tries to get the current event loop. If the current event loop is closed or does not exist,
+    it creates a new event loop and sets it as the current event loop.
+
+    Returns:
+        asyncio.AbstractEventLoop: The current or newly created event loop.
+    """
+    try:
+        # Try to get the current event loop
+        current_loop = asyncio.get_event_loop()
+        if current_loop.is_closed():
+            raise RuntimeError("Event loop is closed.")
+        return current_loop
+
+    except RuntimeError:
+        # If no event loop exists or it is closed, create a new one
+        logger.info("Creating a new event loop in main thread.")
+        new_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(new_loop)
+        return new_loop
+
 statistic_data = {"llm_call": 0, "llm_cache": 0, "embed_call": 0}
 
 # Initialize logger
@@ -266,17 +421,6 @@ class UnlimitedSemaphore:
 
     async def __aexit__(self, exc_type, exc, tb):
         pass
-
-
-@dataclass
-class EmbeddingFunc:
-    embedding_dim: int
-    max_token_size: int
-    func: callable
-    # concurrent_limit: int = 16
-
-    async def __call__(self, *args, **kwargs) -> np.ndarray:
-        return await self.func(*args, **kwargs)
 
 
 def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
@@ -616,91 +760,6 @@ def load_json(file_name):
 def write_json(json_obj, file_name):
     with open(file_name, "w", encoding="utf-8") as f:
         json.dump(json_obj, f, indent=2, ensure_ascii=False)
-
-
-class TokenizerInterface(Protocol):
-    """
-    Defines the interface for a tokenizer, requiring encode and decode methods.
-    """
-
-    def encode(self, content: str) -> List[int]:
-        """Encodes a string into a list of tokens."""
-        ...
-
-    def decode(self, tokens: List[int]) -> str:
-        """Decodes a list of tokens into a string."""
-        ...
-
-
-class Tokenizer:
-    """
-    A wrapper around a tokenizer to provide a consistent interface for encoding and decoding.
-    """
-
-    def __init__(self, model_name: str, tokenizer: TokenizerInterface):
-        """
-        Initializes the Tokenizer with a tokenizer model name and a tokenizer instance.
-
-        Args:
-            model_name: The associated model name for the tokenizer.
-            tokenizer: An instance of a class implementing the TokenizerInterface.
-        """
-        self.model_name: str = model_name
-        self.tokenizer: TokenizerInterface = tokenizer
-
-    def encode(self, content: str) -> List[int]:
-        """
-        Encodes a string into a list of tokens using the underlying tokenizer.
-
-        Args:
-            content: The string to encode.
-
-        Returns:
-            A list of integer tokens.
-        """
-        return self.tokenizer.encode(content)
-
-    def decode(self, tokens: List[int]) -> str:
-        """
-        Decodes a list of tokens into a string using the underlying tokenizer.
-
-        Args:
-            tokens: A list of integer tokens to decode.
-
-        Returns:
-            The decoded string.
-        """
-        return self.tokenizer.decode(tokens)
-
-
-class TiktokenTokenizer(Tokenizer):
-    """
-    A Tokenizer implementation using the tiktoken library.
-    """
-
-    def __init__(self, model_name: str = "gpt-4o-mini"):
-        """
-        Initializes the TiktokenTokenizer with a specified model name.
-
-        Args:
-            model_name: The model name for the tiktoken tokenizer to use.  Defaults to "gpt-4o-mini".
-
-        Raises:
-            ImportError: If tiktoken is not installed.
-            ValueError: If the model_name is invalid.
-        """
-        try:
-            import tiktoken
-        except ImportError:
-            raise ImportError(
-                "tiktoken is not installed. Please install it with `pip install tiktoken` or define custom `tokenizer_func`."
-            )
-
-        try:
-            tokenizer = tiktoken.encoding_for_model(model_name)
-            super().__init__(model_name=model_name, tokenizer=tokenizer)
-        except KeyError:
-            raise ValueError(f"Invalid model_name: {model_name}.")
 
 
 def pack_user_ass_to_openai_messages(*args: str):
@@ -1120,32 +1179,6 @@ def get_conversation_turns(
 
     return "\n".join(formatted_turns)
 
-
-def always_get_an_event_loop() -> asyncio.AbstractEventLoop:
-    """
-    Ensure that there is always an event loop available.
-
-    This function tries to get the current event loop. If the current event loop is closed or does not exist,
-    it creates a new event loop and sets it as the current event loop.
-
-    Returns:
-        asyncio.AbstractEventLoop: The current or newly created event loop.
-    """
-    try:
-        # Try to get the current event loop
-        current_loop = asyncio.get_event_loop()
-        if current_loop.is_closed():
-            raise RuntimeError("Event loop is closed.")
-        return current_loop
-
-    except RuntimeError:
-        # If no event loop exists or it is closed, create a new one
-        logger.info("Creating a new event loop in main thread.")
-        new_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(new_loop)
-        return new_loop
-
-
 async def aexport_data(
     chunk_entity_relation_graph,
     entities_vdb,
@@ -1490,26 +1523,6 @@ def export_data(
         )
     )
 
-
-def lazy_external_import(module_name: str, class_name: str) -> Callable[..., Any]:
-    """Lazily import a class from an external module based on the package of the caller."""
-    # Get the caller's module and package
-    import inspect
-
-    caller_frame = inspect.currentframe().f_back
-    module = inspect.getmodule(caller_frame)
-    package = module.__package__ if module else None
-
-    def import_class(*args: Any, **kwargs: Any):
-        import importlib
-
-        module = importlib.import_module(module_name, package=package)
-        cls = getattr(module, class_name)
-        return cls(*args, **kwargs)
-
-    return import_class
-
-
 async def use_llm_func_with_cache(
     input_text: str,
     use_llm_func: callable,
@@ -1668,28 +1681,6 @@ def clean_text(text: str) -> str:
         Cleaned text
     """
     return text.strip().replace("\x00", "")
-
-
-def check_storage_env_vars(storage_name: str) -> None:
-    """Check if all required environment variables for storage implementation exist
-
-    Args:
-        storage_name: Storage implementation name
-
-    Raises:
-        ValueError: If required environment variables are missing
-    """
-    from lightrag.kg import STORAGE_ENV_REQUIREMENTS
-
-    required_vars = STORAGE_ENV_REQUIREMENTS.get(storage_name, [])
-    missing_vars = [var for var in required_vars if var not in os.environ]
-
-    if missing_vars:
-        raise ValueError(
-            f"Storage implementation '{storage_name}' requires the following "
-            f"environment variables: {', '.join(missing_vars)}"
-        )
-
 
 class TokenTracker:
     """Track token usage for LLM calls."""

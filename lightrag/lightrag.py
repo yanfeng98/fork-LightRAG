@@ -4,7 +4,6 @@ import traceback
 import asyncio
 import configparser
 import os
-import warnings
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from functools import partial
@@ -324,28 +323,26 @@ class LightRAG:
         )(self.embedding_func)
 
         # Initialize all storages
+
         self.key_string_value_json_storage_cls: type[BaseKVStorage] = (
             self._get_storage_class(self.kv_storage)
-        )  # type: ignore
-        self.vector_db_storage_cls: type[BaseVectorStorage] = self._get_storage_class(
-            self.vector_storage
-        )  # type: ignore
-        self.graph_storage_cls: type[BaseGraphStorage] = self._get_storage_class(
-            self.graph_storage
         )  # type: ignore
         self.key_string_value_json_storage_cls = partial(  # type: ignore
             self.key_string_value_json_storage_cls, global_config=global_config
         )
-        self.vector_db_storage_cls = partial(  # type: ignore
-            self.vector_db_storage_cls, global_config=global_config
+        self.full_docs: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
+            namespace=make_namespace(
+                self.namespace_prefix, NameSpace.KV_STORE_FULL_DOCS
+            ),
+            embedding_func=self.embedding_func,
         )
-        self.graph_storage_cls = partial(  # type: ignore
-            self.graph_storage_cls, global_config=global_config
+        # TODO: deprecating, text_chunks is redundant with chunks_vdb
+        self.text_chunks: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
+            namespace=make_namespace(
+                self.namespace_prefix, NameSpace.KV_STORE_TEXT_CHUNKS
+            ),
+            embedding_func=self.embedding_func,
         )
-
-        # Initialize document status storage
-        self.doc_status_storage_cls = self._get_storage_class(self.doc_status_storage)
-
         self.llm_response_cache: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
             namespace=make_namespace(
                 self.namespace_prefix, NameSpace.KV_STORE_LLM_RESPONSE_CACHE
@@ -356,27 +353,13 @@ class LightRAG:
             embedding_func=self.embedding_func,
         )
 
-        self.full_docs: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
-            namespace=make_namespace(
-                self.namespace_prefix, NameSpace.KV_STORE_FULL_DOCS
-            ),
-            embedding_func=self.embedding_func,
-        )
 
-        # TODO: deprecating, text_chunks is redundant with chunks_vdb
-        self.text_chunks: BaseKVStorage = self.key_string_value_json_storage_cls(  # type: ignore
-            namespace=make_namespace(
-                self.namespace_prefix, NameSpace.KV_STORE_TEXT_CHUNKS
-            ),
-            embedding_func=self.embedding_func,
+        self.vector_db_storage_cls: type[BaseVectorStorage] = self._get_storage_class(
+            self.vector_storage
+        )  # type: ignore
+        self.vector_db_storage_cls = partial(  # type: ignore
+            self.vector_db_storage_cls, global_config=global_config
         )
-        self.chunk_entity_relation_graph: BaseGraphStorage = self.graph_storage_cls(  # type: ignore
-            namespace=make_namespace(
-                self.namespace_prefix, NameSpace.GRAPH_STORE_CHUNK_ENTITY_RELATION
-            ),
-            embedding_func=self.embedding_func,
-        )
-
         self.entities_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
             namespace=make_namespace(
                 self.namespace_prefix, NameSpace.VECTOR_STORE_ENTITIES
@@ -399,6 +382,21 @@ class LightRAG:
             meta_fields={"full_doc_id", "content", "file_path"},
         )
 
+        self.graph_storage_cls: type[BaseGraphStorage] = self._get_storage_class(
+            self.graph_storage
+        )  # type: ignore
+        self.graph_storage_cls = partial(  # type: ignore
+            self.graph_storage_cls, global_config=global_config
+        )
+        self.chunk_entity_relation_graph: BaseGraphStorage = self.graph_storage_cls(  # type: ignore
+            namespace=make_namespace(
+                self.namespace_prefix, NameSpace.GRAPH_STORE_CHUNK_ENTITY_RELATION
+            ),
+            embedding_func=self.embedding_func,
+        )
+
+        # Initialize document status storage
+        self.doc_status_storage_cls = self._get_storage_class(self.doc_status_storage)
         # Initialize document status storage
         self.doc_status: DocStatusStorage = self.doc_status_storage_cls(
             namespace=make_namespace(self.namespace_prefix, NameSpace.DOC_STATUS),
@@ -422,10 +420,11 @@ class LightRAG:
         if self.auto_manage_storages_states:
             self._run_async_safely(self.initialize_storages, "Storage Initialization")
 
-    def __del__(self):
-        if self.auto_manage_storages_states:
-            self._run_async_safely(self.finalize_storages, "Storage Finalization")
-
+    def _get_storage_class(self, storage_name: str) -> Callable[..., Any]:
+        import_path = STORAGES[storage_name]
+        storage_class = lazy_external_import(import_path, storage_name)
+        return storage_class
+    
     def _run_async_safely(self, async_func, action_name=""):
         """Safely execute an async function, avoiding event loop conflicts."""
         try:
@@ -453,11 +452,11 @@ class LightRAG:
             for storage in (
                 self.full_docs,
                 self.text_chunks,
+                self.llm_response_cache,
                 self.entities_vdb,
                 self.relationships_vdb,
                 self.chunks_vdb,
                 self.chunk_entity_relation_graph,
-                self.llm_response_cache,
                 self.doc_status,
             ):
                 if storage:
@@ -467,6 +466,10 @@ class LightRAG:
 
             self._storages_status = StoragesStatus.INITIALIZED
             logger.debug("Initialized Storages")
+
+    def __del__(self):
+        if self.auto_manage_storages_states:
+            self._run_async_safely(self.finalize_storages, "Storage Finalization")
 
     async def finalize_storages(self):
         """Asynchronously finalize the storages"""
@@ -515,11 +518,6 @@ class LightRAG:
         return await self.chunk_entity_relation_graph.get_knowledge_graph(
             node_label, max_depth, max_nodes
         )
-
-    def _get_storage_class(self, storage_name: str) -> Callable[..., Any]:
-        import_path = STORAGES[storage_name]
-        storage_class = lazy_external_import(import_path, storage_name)
-        return storage_class
 
     def insert(
         self,

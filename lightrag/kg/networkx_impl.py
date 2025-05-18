@@ -34,6 +34,14 @@ MAX_GRAPH_NODES = int(os.getenv("MAX_GRAPH_NODES", 1000))
 @final
 @dataclass
 class NetworkXStorage(BaseGraphStorage):
+
+    async def initialize(self):
+        """Initialize storage data"""
+        # Get the storage lock for use in other methods
+        self._storage_lock = get_storage_lock()
+        # Get the update flag for cross-process update notification
+        self.storage_updated = await get_update_flag(self.namespace)
+
     @staticmethod
     def load_nx_graph(file_name) -> nx.Graph:
         if os.path.exists(file_name):
@@ -64,13 +72,6 @@ class NetworkXStorage(BaseGraphStorage):
         else:
             logger.info("Created new empty graph")
         self._graph = preloaded_graph or nx.Graph()
-
-    async def initialize(self):
-        """Initialize storage data"""
-        # Get the update flag for cross-process update notification
-        self.storage_updated = await get_update_flag(self.namespace)
-        # Get the storage lock for use in other methods
-        self._storage_lock = get_storage_lock()
 
     async def _get_graph(self):
         """Check if the storage should be reloaded"""

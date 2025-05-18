@@ -142,6 +142,60 @@ class StorageNameSpace(ABC):
         - If not supported: return {"status": "error", "message": "unsupported"}
         """
 
+@dataclass
+class BaseKVStorage(StorageNameSpace, ABC):
+    embedding_func: EmbeddingFunc
+
+    @abstractmethod
+    async def get_by_id(self, id: str) -> dict[str, Any] | None:
+        """Get value by id"""
+
+    @abstractmethod
+    async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
+        """Get values by ids"""
+
+    @abstractmethod
+    async def filter_keys(self, keys: set[str]) -> set[str]:
+        """Return un-exist keys"""
+
+    @abstractmethod
+    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
+        """Upsert data
+
+        Importance notes for in-memory storage:
+        1. Changes will be persisted to disk during the next index_done_callback
+        2. update flags to notify other processes that data persistence is needed
+        """
+
+    @abstractmethod
+    async def delete(self, ids: list[str]) -> None:
+        """Delete specific records from storage by their IDs
+
+        Importance notes for in-memory storage:
+        1. Changes will be persisted to disk during the next index_done_callback
+        2. update flags to notify other processes that data persistence is needed
+
+        Args:
+            ids (list[str]): List of document IDs to be deleted from storage
+
+        Returns:
+            None
+        """
+
+    async def drop_cache_by_modes(self, modes: list[str] | None = None) -> bool:
+        """Delete specific records from storage by cache mode
+
+        Importance notes for in-memory storage:
+        1. Changes will be persisted to disk during the next index_done_callback
+        2. update flags to notify other processes that data persistence is needed
+
+        Args:
+            modes (list[str]): List of cache modes to be dropped from storage
+
+        Returns:
+             True: if the cache drop successfully
+             False: if the cache drop failed, or the cache mode is not supported
+        """
 
 @dataclass
 class BaseVectorStorage(StorageNameSpace, ABC):
@@ -221,63 +275,6 @@ class BaseVectorStorage(StorageNameSpace, ABC):
         Args:
             ids: List of vector IDs to be deleted
         """
-
-
-@dataclass
-class BaseKVStorage(StorageNameSpace, ABC):
-    embedding_func: EmbeddingFunc
-
-    @abstractmethod
-    async def get_by_id(self, id: str) -> dict[str, Any] | None:
-        """Get value by id"""
-
-    @abstractmethod
-    async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
-        """Get values by ids"""
-
-    @abstractmethod
-    async def filter_keys(self, keys: set[str]) -> set[str]:
-        """Return un-exist keys"""
-
-    @abstractmethod
-    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
-        """Upsert data
-
-        Importance notes for in-memory storage:
-        1. Changes will be persisted to disk during the next index_done_callback
-        2. update flags to notify other processes that data persistence is needed
-        """
-
-    @abstractmethod
-    async def delete(self, ids: list[str]) -> None:
-        """Delete specific records from storage by their IDs
-
-        Importance notes for in-memory storage:
-        1. Changes will be persisted to disk during the next index_done_callback
-        2. update flags to notify other processes that data persistence is needed
-
-        Args:
-            ids (list[str]): List of document IDs to be deleted from storage
-
-        Returns:
-            None
-        """
-
-    async def drop_cache_by_modes(self, modes: list[str] | None = None) -> bool:
-        """Delete specific records from storage by cache mode
-
-        Importance notes for in-memory storage:
-        1. Changes will be persisted to disk during the next index_done_callback
-        2. update flags to notify other processes that data persistence is needed
-
-        Args:
-            modes (list[str]): List of cache modes to be dropped from storage
-
-        Returns:
-             True: if the cache drop successfully
-             False: if the cache drop failed, or the cache mode is not supported
-        """
-
 
 @dataclass
 class BaseGraphStorage(StorageNameSpace, ABC):
@@ -536,6 +533,32 @@ class BaseGraphStorage(StorageNameSpace, ABC):
             indicating whether the graph was truncated due to max_nodes limit
         """
 
+@dataclass
+class DocStatusStorage(BaseKVStorage, ABC):
+    """Base class for document status storage"""
+
+    @abstractmethod
+    async def get_status_counts(self) -> dict[str, int]:
+        """Get counts of documents in each status"""
+
+    @abstractmethod
+    async def get_docs_by_status(
+        self, status: DocStatus
+    ) -> dict[str, DocProcessingStatus]:
+        """Get all documents with a specific status"""
+
+    async def drop_cache_by_modes(self, modes: list[str] | None = None) -> bool:
+        """Drop cache is not supported for Doc Status storage"""
+        return False
+
+class StoragesStatus(str, Enum):
+    """Storages status"""
+
+    NOT_CREATED = "not_created"
+    CREATED = "created"
+    INITIALIZED = "initialized"
+    FINALIZED = "finalized"
+
 
 class DocStatus(str, Enum):
     """Document processing status"""
@@ -570,31 +593,3 @@ class DocProcessingStatus:
     """Error message if failed"""
     metadata: dict[str, Any] = field(default_factory=dict)
     """Additional metadata"""
-
-
-@dataclass
-class DocStatusStorage(BaseKVStorage, ABC):
-    """Base class for document status storage"""
-
-    @abstractmethod
-    async def get_status_counts(self) -> dict[str, int]:
-        """Get counts of documents in each status"""
-
-    @abstractmethod
-    async def get_docs_by_status(
-        self, status: DocStatus
-    ) -> dict[str, DocProcessingStatus]:
-        """Get all documents with a specific status"""
-
-    async def drop_cache_by_modes(self, modes: list[str] | None = None) -> bool:
-        """Drop cache is not supported for Doc Status storage"""
-        return False
-
-
-class StoragesStatus(str, Enum):
-    """Storages status"""
-
-    NOT_CREATED = "not_created"
-    CREATED = "created"
-    INITIALIZED = "initialized"
-    FINALIZED = "finalized"

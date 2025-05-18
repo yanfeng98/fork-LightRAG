@@ -9,25 +9,25 @@ from typing import Any, Dict, Optional, Union, TypeVar, Generic
 T = TypeVar("T")
 LockType = Union[ProcessLock, asyncio.Lock]
 
+_initialized = None
 _is_multiprocess = None
 _workers = None
 _manager = None
-_initialized = None
-
-# shared data for storage across processes
-_shared_dicts: Optional[Dict[str, Any]] = None
-_init_flags: Optional[Dict[str, bool]] = None  # namespace -> initialized
-_update_flags: Optional[Dict[str, bool]] = None  # namespace -> updated
-
-# locks for mutex access
-_storage_lock: Optional[LockType] = None
-_internal_lock: Optional[LockType] = None
-_pipeline_status_lock: Optional[LockType] = None
-_graph_db_lock: Optional[LockType] = None
-_data_init_lock: Optional[LockType] = None
 
 # async locks for coroutine synchronization in multiprocess mode
 _async_locks: Optional[Dict[str, asyncio.Lock]] = None
+
+# locks for mutex access
+_storage_lock: Optional[LockType] = None
+_data_init_lock: Optional[LockType] = None
+_internal_lock: Optional[LockType] = None
+_pipeline_status_lock: Optional[LockType] = None
+_graph_db_lock: Optional[LockType] = None
+
+# shared data for storage across processes
+_init_flags: Optional[Dict[str, bool]] = None  # namespace -> initialized
+_update_flags: Optional[Dict[str, bool]] = None  # namespace -> updated
+_shared_dicts: Optional[Dict[str, Any]] = None
 
 
 def initialize_share_data(workers: int = 1):
@@ -49,19 +49,19 @@ def initialize_share_data(workers: int = 1):
                       If > 1, multi-process mode with shared memory is used.
     """
     global \
-        _manager, \
-        _workers, \
+        _initialized, \
         _is_multiprocess, \
+        _workers, \
+        _manager, \
+        _async_locks, \
         _storage_lock, \
+        _data_init_lock, \
         _internal_lock, \
         _pipeline_status_lock, \
         _graph_db_lock, \
-        _data_init_lock, \
-        _shared_dicts, \
         _init_flags, \
-        _initialized, \
         _update_flags, \
-        _async_locks
+        _shared_dicts
 
     # Check if already initialized
     if _initialized:
@@ -75,22 +75,22 @@ def initialize_share_data(workers: int = 1):
     if workers > 1:
         _is_multiprocess = True
         _manager = Manager()
-        _internal_lock = _manager.Lock()
         _storage_lock = _manager.Lock()
+        _data_init_lock = _manager.Lock()
+        _internal_lock = _manager.Lock()
         _pipeline_status_lock = _manager.Lock()
         _graph_db_lock = _manager.Lock()
-        _data_init_lock = _manager.Lock()
-        _shared_dicts = _manager.dict()
         _init_flags = _manager.dict()
         _update_flags = _manager.dict()
+        _shared_dicts = _manager.dict()
 
         # Initialize async locks for multiprocess mode
         _async_locks = {
             "internal_lock": asyncio.Lock(),
             "storage_lock": asyncio.Lock(),
+            "data_init_lock": asyncio.Lock(),
             "pipeline_status_lock": asyncio.Lock(),
             "graph_db_lock": asyncio.Lock(),
-            "data_init_lock": asyncio.Lock(),
         }
 
         direct_log(
@@ -98,15 +98,15 @@ def initialize_share_data(workers: int = 1):
         )
     else:
         _is_multiprocess = False
-        _internal_lock = asyncio.Lock()
+        _async_locks = None  # No need for async locks in single process mode
         _storage_lock = asyncio.Lock()
+        _data_init_lock = asyncio.Lock()
+        _internal_lock = asyncio.Lock()
         _pipeline_status_lock = asyncio.Lock()
         _graph_db_lock = asyncio.Lock()
-        _data_init_lock = asyncio.Lock()
-        _shared_dicts = {}
         _init_flags = {}
         _update_flags = {}
-        _async_locks = None  # No need for async locks in single process mode
+        _shared_dicts = {}
         direct_log(f"Process {os.getpid()} Shared-Data created for Single Process")
 
     # Mark as initialized
@@ -148,17 +148,8 @@ class UnifiedLock(Generic[T]):
 
     async def __aenter__(self) -> "UnifiedLock[T]":
         try:
-            # direct_log(
-            #     f"== Lock == Process {self._pid}: Acquiring lock '{self._name}' (async={self._is_async})",
-            #     enable_output=self._enable_logging,
-            # )
-
             # If in multiprocess mode and async lock exists, acquire it first
             if not self._is_async and self._async_lock is not None:
-                # direct_log(
-                #     f"== Lock == Process {self._pid}: Acquiring async lock for '{self._name}'",
-                #     enable_output=self._enable_logging,
-                # )
                 await self._async_lock.acquire()
                 direct_log(
                     f"== Lock == Process {self._pid}: Async lock for '{self._name}' acquired",
@@ -293,19 +284,6 @@ class UnifiedLock(Generic[T]):
             )
             raise
 
-
-def get_internal_lock(enable_logging: bool = False) -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    async_lock = _async_locks.get("internal_lock") if _is_multiprocess else None
-    return UnifiedLock(
-        lock=_internal_lock,
-        is_async=not _is_multiprocess,
-        name="internal_lock",
-        enable_logging=enable_logging,
-        async_lock=async_lock,
-    )
-
-
 def get_storage_lock(enable_logging: bool = False) -> UnifiedLock:
     """return unified storage lock for data consistency"""
     async_lock = _async_locks.get("storage_lock") if _is_multiprocess else None
@@ -316,73 +294,6 @@ def get_storage_lock(enable_logging: bool = False) -> UnifiedLock:
         enable_logging=enable_logging,
         async_lock=async_lock,
     )
-
-
-def get_pipeline_status_lock(enable_logging: bool = False) -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    async_lock = _async_locks.get("pipeline_status_lock") if _is_multiprocess else None
-    return UnifiedLock(
-        lock=_pipeline_status_lock,
-        is_async=not _is_multiprocess,
-        name="pipeline_status_lock",
-        enable_logging=enable_logging,
-        async_lock=async_lock,
-    )
-
-
-def get_graph_db_lock(enable_logging: bool = False) -> UnifiedLock:
-    """return unified graph database lock for ensuring atomic operations"""
-    async_lock = _async_locks.get("graph_db_lock") if _is_multiprocess else None
-    return UnifiedLock(
-        lock=_graph_db_lock,
-        is_async=not _is_multiprocess,
-        name="graph_db_lock",
-        enable_logging=enable_logging,
-        async_lock=async_lock,
-    )
-
-
-def get_data_init_lock(enable_logging: bool = False) -> UnifiedLock:
-    """return unified data initialization lock for ensuring atomic data initialization"""
-    async_lock = _async_locks.get("data_init_lock") if _is_multiprocess else None
-    return UnifiedLock(
-        lock=_data_init_lock,
-        is_async=not _is_multiprocess,
-        name="data_init_lock",
-        enable_logging=enable_logging,
-        async_lock=async_lock,
-    )
-
-async def initialize_pipeline_status():
-    """
-    Initialize pipeline namespace with default values.
-    This function is called during FASTAPI lifespan for each worker.
-    """
-    pipeline_namespace = await get_namespace_data("pipeline_status")
-
-    async with get_internal_lock():
-        # Check if already initialized by checking for required fields
-        if "busy" in pipeline_namespace:
-            return
-
-        # Create a shared list object for history_messages
-        history_messages = _manager.list() if _is_multiprocess else []
-        pipeline_namespace.update(
-            {
-                "autoscanned": False,  # Auto-scan started
-                "busy": False,  # Control concurrent processes
-                "job_name": "-",  # Current job name (indexing files/indexing texts)
-                "job_start": None,  # Job start time
-                "docs": 0,  # Total number of documents to be indexed
-                "batchs": 0,  # Number of batches for processing documents
-                "cur_batch": 0,  # Current processing batch
-                "request_pending": False,  # Flag for pending request for processing
-                "latest_message": "",  # Latest message from pipeline processing
-                "history_messages": history_messages,  # 使用共享列表对象
-            }
-        )
-        direct_log(f"Process {os.getpid()} Pipeline namespace initialized")
-
 
 async def get_update_flag(namespace: str):
     """
@@ -416,6 +327,122 @@ async def get_update_flag(namespace: str):
         _update_flags[namespace].append(new_update_flag)
         return new_update_flag
 
+def get_data_init_lock(enable_logging: bool = False) -> UnifiedLock:
+    """return unified data initialization lock for ensuring atomic data initialization"""
+    async_lock = _async_locks.get("data_init_lock") if _is_multiprocess else None
+    return UnifiedLock(
+        lock=_data_init_lock,
+        is_async=not _is_multiprocess,
+        name="data_init_lock",
+        enable_logging=enable_logging,
+        async_lock=async_lock,
+    )
+
+async def try_initialize_namespace(namespace: str) -> bool:
+    """
+    Returns True if the current worker(process) gets initialization permission for loading data later.
+    The worker does not get the permission is prohibited to load data from files.
+    """
+    global _init_flags
+
+    if _init_flags is None:
+        raise ValueError("Try to create nanmespace before Shared-Data is initialized")
+
+    async with get_internal_lock():
+        if namespace not in _init_flags:
+            _init_flags[namespace] = True
+            direct_log(
+                f"Process {os.getpid()} ready to initialize storage namespace: [{namespace}]"
+            )
+            return True
+        direct_log(
+            f"Process {os.getpid()} storage namespace already initialized: [{namespace}]"
+        )
+
+    return False
+
+def get_internal_lock(enable_logging: bool = False) -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    async_lock = _async_locks.get("internal_lock") if _is_multiprocess else None
+    return UnifiedLock(
+        lock=_internal_lock,
+        is_async=not _is_multiprocess,
+        name="internal_lock",
+        enable_logging=enable_logging,
+        async_lock=async_lock,
+    )
+
+async def get_namespace_data(namespace: str) -> Dict[str, Any]:
+    """get the shared data reference for specific namespace"""
+    if _shared_dicts is None:
+        direct_log(
+            f"Error: try to getnanmespace before it is initialized, pid={os.getpid()}",
+            level="ERROR",
+        )
+        raise ValueError("Shared dictionaries not initialized")
+
+    async with get_internal_lock():
+        if namespace not in _shared_dicts:
+            if _is_multiprocess and _manager is not None:
+                _shared_dicts[namespace] = _manager.dict()
+            else:
+                _shared_dicts[namespace] = {}
+
+    return _shared_dicts[namespace]
+
+def get_pipeline_status_lock(enable_logging: bool = False) -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    async_lock = _async_locks.get("pipeline_status_lock") if _is_multiprocess else None
+    return UnifiedLock(
+        lock=_pipeline_status_lock,
+        is_async=not _is_multiprocess,
+        name="pipeline_status_lock",
+        enable_logging=enable_logging,
+        async_lock=async_lock,
+    )
+
+
+def get_graph_db_lock(enable_logging: bool = False) -> UnifiedLock:
+    """return unified graph database lock for ensuring atomic operations"""
+    async_lock = _async_locks.get("graph_db_lock") if _is_multiprocess else None
+    return UnifiedLock(
+        lock=_graph_db_lock,
+        is_async=not _is_multiprocess,
+        name="graph_db_lock",
+        enable_logging=enable_logging,
+        async_lock=async_lock,
+    )
+
+
+async def initialize_pipeline_status():
+    """
+    Initialize pipeline namespace with default values.
+    This function is called during FASTAPI lifespan for each worker.
+    """
+    pipeline_namespace = await get_namespace_data("pipeline_status")
+
+    async with get_internal_lock():
+        # Check if already initialized by checking for required fields
+        if "busy" in pipeline_namespace:
+            return
+
+        # Create a shared list object for history_messages
+        history_messages = _manager.list() if _is_multiprocess else []
+        pipeline_namespace.update(
+            {
+                "autoscanned": False,  # Auto-scan started
+                "busy": False,  # Control concurrent processes
+                "job_name": "-",  # Current job name (indexing files/indexing texts)
+                "job_start": None,  # Job start time
+                "docs": 0,  # Total number of documents to be indexed
+                "batchs": 0,  # Number of batches for processing documents
+                "cur_batch": 0,  # Current processing batch
+                "request_pending": False,  # Flag for pending request for processing
+                "latest_message": "",  # Latest message from pipeline processing
+                "history_messages": history_messages,  # 使用共享列表对象
+            }
+        )
+        direct_log(f"Process {os.getpid()} Pipeline namespace initialized")
 
 async def set_all_update_flags(namespace: str):
     """Set all update flag of namespace indicating all workers need to reload data from files"""
@@ -467,49 +494,6 @@ async def get_all_update_flags_status() -> Dict[str, list]:
             result[namespace] = worker_statuses
 
     return result
-
-
-async def try_initialize_namespace(namespace: str) -> bool:
-    """
-    Returns True if the current worker(process) gets initialization permission for loading data later.
-    The worker does not get the permission is prohibited to load data from files.
-    """
-    global _init_flags, _manager
-
-    if _init_flags is None:
-        raise ValueError("Try to create nanmespace before Shared-Data is initialized")
-
-    async with get_internal_lock():
-        if namespace not in _init_flags:
-            _init_flags[namespace] = True
-            direct_log(
-                f"Process {os.getpid()} ready to initialize storage namespace: [{namespace}]"
-            )
-            return True
-        direct_log(
-            f"Process {os.getpid()} storage namespace already initialized: [{namespace}]"
-        )
-
-    return False
-
-
-async def get_namespace_data(namespace: str) -> Dict[str, Any]:
-    """get the shared data reference for specific namespace"""
-    if _shared_dicts is None:
-        direct_log(
-            f"Error: try to getnanmespace before it is initialized, pid={os.getpid()}",
-            level="ERROR",
-        )
-        raise ValueError("Shared dictionaries not initialized")
-
-    async with get_internal_lock():
-        if namespace not in _shared_dicts:
-            if _is_multiprocess and _manager is not None:
-                _shared_dicts[namespace] = _manager.dict()
-            else:
-                _shared_dicts[namespace] = {}
-
-    return _shared_dicts[namespace]
 
 
 def finalize_share_data():

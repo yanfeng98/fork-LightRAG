@@ -1,9 +1,4 @@
-import sys
-
-if sys.version_info < (3, 9):
-    from typing import AsyncIterator
-else:
-    from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator
 
 import pipmaster as pm  # Pipmaster for dynamic library install
 
@@ -29,6 +24,40 @@ from lightrag.api import __api_version__
 import numpy as np
 from typing import Union
 from lightrag.utils import logger
+
+async def ollama_embed(texts: list[str], embed_model, **kwargs) -> np.ndarray:
+    api_key = kwargs.pop("api_key", None)
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": f"LightRAG/{__api_version__}",
+    }
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    host = kwargs.pop("host", None)
+    timeout = kwargs.pop("timeout", None) or 90  # Default time out 90s
+
+    ollama_client = ollama.AsyncClient(host=host, timeout=timeout, headers=headers)
+
+    try:
+        data = await ollama_client.embed(model=embed_model, input=texts)
+        return np.array(data["embeddings"])
+    except Exception as e:
+        logger.error(f"Error in ollama_embed: {str(e)}")
+        try:
+            await ollama_client._client.aclose()
+            logger.debug("Successfully closed Ollama client after exception in embed")
+        except Exception as close_error:
+            logger.warning(
+                f"Failed to close Ollama client after exception in embed: {close_error}"
+            )
+        raise e
+    finally:
+        try:
+            await ollama_client._client.aclose()
+            logger.debug("Successfully closed Ollama client after embed")
+        except Exception as close_error:
+            logger.warning(f"Failed to close Ollama client after embed: {close_error}")
 
 
 @retry(
@@ -134,38 +163,3 @@ async def ollama_model_complete(
         history_messages=history_messages,
         **kwargs,
     )
-
-
-async def ollama_embed(texts: list[str], embed_model, **kwargs) -> np.ndarray:
-    api_key = kwargs.pop("api_key", None)
-    headers = {
-        "Content-Type": "application/json",
-        "User-Agent": f"LightRAG/{__api_version__}",
-    }
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-
-    host = kwargs.pop("host", None)
-    timeout = kwargs.pop("timeout", None) or 90  # Default time out 90s
-
-    ollama_client = ollama.AsyncClient(host=host, timeout=timeout, headers=headers)
-
-    try:
-        data = await ollama_client.embed(model=embed_model, input=texts)
-        return np.array(data["embeddings"])
-    except Exception as e:
-        logger.error(f"Error in ollama_embed: {str(e)}")
-        try:
-            await ollama_client._client.aclose()
-            logger.debug("Successfully closed Ollama client after exception in embed")
-        except Exception as close_error:
-            logger.warning(
-                f"Failed to close Ollama client after exception in embed: {close_error}"
-            )
-        raise e
-    finally:
-        try:
-            await ollama_client._client.aclose()
-            logger.debug("Successfully closed Ollama client after embed")
-        except Exception as close_error:
-            logger.warning(f"Failed to close Ollama client after embed: {close_error}")
