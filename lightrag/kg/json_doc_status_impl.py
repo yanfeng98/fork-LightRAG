@@ -83,23 +83,6 @@ class JsonDocStatusStorage(DocStatusStorage):
                 write_json(data_dict, self._file_name)
                 await clear_all_update_flags(self.namespace)
 
-    async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
-        result: list[dict[str, Any]] = []
-        async with self._storage_lock:
-            for id in ids:
-                data = self._data.get(id, None)
-                if data:
-                    result.append(data)
-        return result
-
-    async def get_status_counts(self) -> dict[str, int]:
-        """Get counts of documents in each status"""
-        counts = {status.value: 0 for status in DocStatus}
-        async with self._storage_lock:
-            for doc in self._data.values():
-                counts[doc["status"]] += 1
-        return counts
-
     async def get_docs_by_status(
         self, status: DocStatus
     ) -> dict[str, DocProcessingStatus]:
@@ -122,6 +105,23 @@ class JsonDocStatusStorage(DocStatusStorage):
                         logger.error(f"Missing required field for document {k}: {e}")
                         continue
         return result
+
+    async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
+        result: list[dict[str, Any]] = []
+        async with self._storage_lock:
+            for id in ids:
+                data = self._data.get(id, None)
+                if data:
+                    result.append(data)
+        return result
+
+    async def get_status_counts(self) -> dict[str, int]:
+        """Get counts of documents in each status"""
+        counts = {status.value: 0 for status in DocStatus}
+        async with self._storage_lock:
+            for doc in self._data.values():
+                counts[doc["status"]] += 1
+        return counts
 
     async def get_by_id(self, id: str) -> Union[dict[str, Any], None]:
         async with self._storage_lock:

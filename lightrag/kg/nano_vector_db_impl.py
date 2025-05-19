@@ -58,25 +58,6 @@ class NanoVectorDBStorage(BaseVectorStorage):
         # Get the update flag for cross-process update notification
         self.storage_updated = await get_update_flag(self.namespace)
 
-    async def _get_client(self):
-        """Check if the storage should be reloaded"""
-        # Acquire lock to prevent concurrent read and write
-        async with self._storage_lock:
-            # Check if data needs to be reloaded
-            if self.storage_updated.value:
-                logger.info(
-                    f"Process {os.getpid()} reloading {self.namespace} due to update by another process"
-                )
-                # Reload data
-                self._client = NanoVectorDB(
-                    self.embedding_func.embedding_dim,
-                    storage_file=self._client_file_name,
-                )
-                # Reset update flag
-                self.storage_updated.value = False
-
-            return self._client
-
     async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
         """
         Importance notes:
@@ -120,6 +101,25 @@ class NanoVectorDBStorage(BaseVectorStorage):
             logger.error(
                 f"embedding is not 1-1 with data, {len(embeddings)} != {len(list_data)}"
             )
+
+    async def _get_client(self):
+        """Check if the storage should be reloaded"""
+        # Acquire lock to prevent concurrent read and write
+        async with self._storage_lock:
+            # Check if data needs to be reloaded
+            if self.storage_updated.value:
+                logger.info(
+                    f"Process {os.getpid()} reloading {self.namespace} due to update by another process"
+                )
+                # Reload data
+                self._client = NanoVectorDB(
+                    self.embedding_func.embedding_dim,
+                    storage_file=self._client_file_name,
+                )
+                # Reset update flag
+                self.storage_updated.value = False
+
+            return self._client
 
     async def query(
         self, query: str, top_k: int, ids: list[str] | None = None

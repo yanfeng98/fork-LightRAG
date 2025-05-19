@@ -108,7 +108,7 @@ async def print_stream(stream):
             print(chunk, end="", flush=True)
 
 
-async def initialize_rag():
+async def initialize_rag() -> LightRAG:
 
     # Test embedding function
     test_text: list[str] = ["This is a test string for embedding."]

@@ -360,6 +360,13 @@ class LightRAG:
         self.vector_db_storage_cls = partial(  # type: ignore
             self.vector_db_storage_cls, global_config=global_config
         )
+        self.chunks_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
+            namespace=make_namespace(
+                self.namespace_prefix, NameSpace.VECTOR_STORE_CHUNKS
+            ),
+            embedding_func=self.embedding_func,
+            meta_fields={"full_doc_id", "content", "file_path"},
+        )
         self.entities_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
             namespace=make_namespace(
                 self.namespace_prefix, NameSpace.VECTOR_STORE_ENTITIES
@@ -373,13 +380,6 @@ class LightRAG:
             ),
             embedding_func=self.embedding_func,
             meta_fields={"src_id", "tgt_id", "source_id", "content", "file_path"},
-        )
-        self.chunks_vdb: BaseVectorStorage = self.vector_db_storage_cls(  # type: ignore
-            namespace=make_namespace(
-                self.namespace_prefix, NameSpace.VECTOR_STORE_CHUNKS
-            ),
-            embedding_func=self.embedding_func,
-            meta_fields={"full_doc_id", "content", "file_path"},
         )
 
         self.graph_storage_cls: type[BaseGraphStorage] = self._get_storage_class(
@@ -612,157 +612,6 @@ class LightRAG:
         # 5. Store status document
         await self.doc_status.upsert(new_docs)
         logger.info(f"Stored {len(new_docs)} new unique documents")
-
-
-    def __del__(self):
-        if self.auto_manage_storages_states:
-            self._run_async_safely(self.finalize_storages, "Storage Finalization")
-
-    async def finalize_storages(self):
-        """Asynchronously finalize the storages"""
-        if self._storages_status == StoragesStatus.INITIALIZED:
-            tasks = []
-
-            for storage in (
-                self.full_docs,
-                self.text_chunks,
-                self.entities_vdb,
-                self.relationships_vdb,
-                self.chunks_vdb,
-                self.chunk_entity_relation_graph,
-                self.llm_response_cache,
-                self.doc_status,
-            ):
-                if storage:
-                    tasks.append(storage.finalize())
-
-            await asyncio.gather(*tasks)
-
-            self._storages_status = StoragesStatus.FINALIZED
-            logger.debug("Finalized Storages")
-
-    async def get_graph_labels(self):
-        text = await self.chunk_entity_relation_graph.get_all_labels()
-        return text
-
-    async def get_knowledge_graph(
-        self,
-        node_label: str,
-        max_depth: int = 3,
-        max_nodes: int = 1000,
-    ) -> KnowledgeGraph:
-        """Get knowledge graph for a given label
-
-        Args:
-            node_label (str): Label to get knowledge graph for
-            max_depth (int): Maximum depth of graph
-            max_nodes (int, optional): Maximum number of nodes to return. Defaults to 1000.
-
-        Returns:
-            KnowledgeGraph: Knowledge graph containing nodes and edges
-        """
-
-        return await self.chunk_entity_relation_graph.get_knowledge_graph(
-            node_label, max_depth, max_nodes
-        )
-
-    def insert(
-        self,
-        input: str | list[str],
-        split_by_character: str | None = None,
-        split_by_character_only: bool = False,
-        ids: str | list[str] | None = None,
-        file_paths: str | list[str] | None = None,
-    ) -> None:
-        """Sync Insert documents with checkpoint support
-
-        Args:
-            input: Single document string or list of document strings
-            split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
-            chunk_token_size, it will be split again by token size.
-            split_by_character_only: if split_by_character_only is True, split the string by character only, when
-            split_by_character is None, this parameter is ignored.
-            ids: single string of the document ID or list of unique document IDs, if not provided, MD5 hash IDs will be generated
-            file_paths: single string of the file path or list of file paths, used for citation
-        """
-        loop = always_get_an_event_loop()
-        loop.run_until_complete(
-            self.ainsert(
-                input, split_by_character, split_by_character_only, ids, file_paths
-            )
-        )
-
-    # TODO: deprecated, use insert instead
-    def insert_custom_chunks(
-        self,
-        full_text: str,
-        text_chunks: list[str],
-        doc_id: str | list[str] | None = None,
-    ) -> None:
-        loop = always_get_an_event_loop()
-        loop.run_until_complete(
-            self.ainsert_custom_chunks(full_text, text_chunks, doc_id)
-        )
-
-    # TODO: deprecated, use ainsert instead
-    async def ainsert_custom_chunks(
-        self, full_text: str, text_chunks: list[str], doc_id: str | None = None
-    ) -> None:
-        update_storage = False
-        try:
-            # Clean input texts
-            full_text = clean_text(full_text)
-            text_chunks = [clean_text(chunk) for chunk in text_chunks]
-            file_path = ""
-
-            # Process cleaned texts
-            if doc_id is None:
-                doc_key = compute_mdhash_id(full_text, prefix="doc-")
-            else:
-                doc_key = doc_id
-            new_docs = {doc_key: {"content": full_text}}
-
-            _add_doc_keys = await self.full_docs.filter_keys({doc_key})
-            new_docs = {k: v for k, v in new_docs.items() if k in _add_doc_keys}
-            if not len(new_docs):
-                logger.warning("This document is already in the storage.")
-                return
-
-            update_storage = True
-            logger.info(f"Inserting {len(new_docs)} docs")
-
-            inserting_chunks: dict[str, Any] = {}
-            for index, chunk_text in enumerate(text_chunks):
-                chunk_key = compute_mdhash_id(chunk_text, prefix="chunk-")
-                tokens = len(self.tokenizer.encode(chunk_text))
-                inserting_chunks[chunk_key] = {
-                    "content": chunk_text,
-                    "full_doc_id": doc_key,
-                    "tokens": tokens,
-                    "chunk_order_index": index,
-                    "file_path": file_path,
-                }
-
-            doc_ids = set(inserting_chunks.keys())
-            add_chunk_keys = await self.text_chunks.filter_keys(doc_ids)
-            inserting_chunks = {
-                k: v for k, v in inserting_chunks.items() if k in add_chunk_keys
-            }
-            if not len(inserting_chunks):
-                logger.warning("All chunks are already in the storage.")
-                return
-
-            tasks = [
-                self.chunks_vdb.upsert(inserting_chunks),
-                self._process_entity_relation_graph(inserting_chunks),
-                self.full_docs.upsert(new_docs),
-                self.text_chunks.upsert(inserting_chunks),
-            ]
-            await asyncio.gather(*tasks)
-
-        finally:
-            if update_storage:
-                await self._insert_done()
 
     async def apipeline_process_enqueue_documents(
         self,
@@ -1155,6 +1004,156 @@ class LightRAG:
                 pipeline_status["latest_message"] = error_msg
                 pipeline_status["history_messages"].append(error_msg)
             raise e
+
+    def __del__(self):
+        if self.auto_manage_storages_states:
+            self._run_async_safely(self.finalize_storages, "Storage Finalization")
+
+    async def finalize_storages(self):
+        """Asynchronously finalize the storages"""
+        if self._storages_status == StoragesStatus.INITIALIZED:
+            tasks = []
+
+            for storage in (
+                self.full_docs,
+                self.text_chunks,
+                self.entities_vdb,
+                self.relationships_vdb,
+                self.chunks_vdb,
+                self.chunk_entity_relation_graph,
+                self.llm_response_cache,
+                self.doc_status,
+            ):
+                if storage:
+                    tasks.append(storage.finalize())
+
+            await asyncio.gather(*tasks)
+
+            self._storages_status = StoragesStatus.FINALIZED
+            logger.debug("Finalized Storages")
+
+    async def get_graph_labels(self):
+        text = await self.chunk_entity_relation_graph.get_all_labels()
+        return text
+
+    async def get_knowledge_graph(
+        self,
+        node_label: str,
+        max_depth: int = 3,
+        max_nodes: int = 1000,
+    ) -> KnowledgeGraph:
+        """Get knowledge graph for a given label
+
+        Args:
+            node_label (str): Label to get knowledge graph for
+            max_depth (int): Maximum depth of graph
+            max_nodes (int, optional): Maximum number of nodes to return. Defaults to 1000.
+
+        Returns:
+            KnowledgeGraph: Knowledge graph containing nodes and edges
+        """
+
+        return await self.chunk_entity_relation_graph.get_knowledge_graph(
+            node_label, max_depth, max_nodes
+        )
+
+    def insert(
+        self,
+        input: str | list[str],
+        split_by_character: str | None = None,
+        split_by_character_only: bool = False,
+        ids: str | list[str] | None = None,
+        file_paths: str | list[str] | None = None,
+    ) -> None:
+        """Sync Insert documents with checkpoint support
+
+        Args:
+            input: Single document string or list of document strings
+            split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
+            chunk_token_size, it will be split again by token size.
+            split_by_character_only: if split_by_character_only is True, split the string by character only, when
+            split_by_character is None, this parameter is ignored.
+            ids: single string of the document ID or list of unique document IDs, if not provided, MD5 hash IDs will be generated
+            file_paths: single string of the file path or list of file paths, used for citation
+        """
+        loop = always_get_an_event_loop()
+        loop.run_until_complete(
+            self.ainsert(
+                input, split_by_character, split_by_character_only, ids, file_paths
+            )
+        )
+
+    # TODO: deprecated, use insert instead
+    def insert_custom_chunks(
+        self,
+        full_text: str,
+        text_chunks: list[str],
+        doc_id: str | list[str] | None = None,
+    ) -> None:
+        loop = always_get_an_event_loop()
+        loop.run_until_complete(
+            self.ainsert_custom_chunks(full_text, text_chunks, doc_id)
+        )
+
+    # TODO: deprecated, use ainsert instead
+    async def ainsert_custom_chunks(
+        self, full_text: str, text_chunks: list[str], doc_id: str | None = None
+    ) -> None:
+        update_storage = False
+        try:
+            # Clean input texts
+            full_text = clean_text(full_text)
+            text_chunks = [clean_text(chunk) for chunk in text_chunks]
+            file_path = ""
+
+            # Process cleaned texts
+            if doc_id is None:
+                doc_key = compute_mdhash_id(full_text, prefix="doc-")
+            else:
+                doc_key = doc_id
+            new_docs = {doc_key: {"content": full_text}}
+
+            _add_doc_keys = await self.full_docs.filter_keys({doc_key})
+            new_docs = {k: v for k, v in new_docs.items() if k in _add_doc_keys}
+            if not len(new_docs):
+                logger.warning("This document is already in the storage.")
+                return
+
+            update_storage = True
+            logger.info(f"Inserting {len(new_docs)} docs")
+
+            inserting_chunks: dict[str, Any] = {}
+            for index, chunk_text in enumerate(text_chunks):
+                chunk_key = compute_mdhash_id(chunk_text, prefix="chunk-")
+                tokens = len(self.tokenizer.encode(chunk_text))
+                inserting_chunks[chunk_key] = {
+                    "content": chunk_text,
+                    "full_doc_id": doc_key,
+                    "tokens": tokens,
+                    "chunk_order_index": index,
+                    "file_path": file_path,
+                }
+
+            doc_ids = set(inserting_chunks.keys())
+            add_chunk_keys = await self.text_chunks.filter_keys(doc_ids)
+            inserting_chunks = {
+                k: v for k, v in inserting_chunks.items() if k in add_chunk_keys
+            }
+            if not len(inserting_chunks):
+                logger.warning("All chunks are already in the storage.")
+                return
+
+            tasks = [
+                self.chunks_vdb.upsert(inserting_chunks),
+                self._process_entity_relation_graph(inserting_chunks),
+                self.full_docs.upsert(new_docs),
+                self.text_chunks.upsert(inserting_chunks),
+            ]
+            await asyncio.gather(*tasks)
+
+        finally:
+            if update_storage:
+                await self._insert_done()
 
     async def _insert_done(
         self, pipeline_status=None, pipeline_status_lock=None
