@@ -390,30 +390,6 @@ async def get_namespace_data(namespace: str) -> Dict[str, Any]:
 
     return _shared_dicts[namespace]
 
-def get_pipeline_status_lock(enable_logging: bool = False) -> UnifiedLock:
-    """return unified storage lock for data consistency"""
-    async_lock = _async_locks.get("pipeline_status_lock") if _is_multiprocess else None
-    return UnifiedLock(
-        lock=_pipeline_status_lock,
-        is_async=not _is_multiprocess,
-        name="pipeline_status_lock",
-        enable_logging=enable_logging,
-        async_lock=async_lock,
-    )
-
-
-def get_graph_db_lock(enable_logging: bool = False) -> UnifiedLock:
-    """return unified graph database lock for ensuring atomic operations"""
-    async_lock = _async_locks.get("graph_db_lock") if _is_multiprocess else None
-    return UnifiedLock(
-        lock=_graph_db_lock,
-        is_async=not _is_multiprocess,
-        name="graph_db_lock",
-        enable_logging=enable_logging,
-        async_lock=async_lock,
-    )
-
-
 async def initialize_pipeline_status():
     """
     Initialize pipeline namespace with default values.
@@ -457,7 +433,6 @@ async def set_all_update_flags(namespace: str):
         for i in range(len(_update_flags[namespace])):
             _update_flags[namespace][i].value = True
 
-
 async def clear_all_update_flags(namespace: str):
     """Clear all update flag of namespace indicating all workers need to reload data from files"""
     global _update_flags
@@ -470,6 +445,29 @@ async def clear_all_update_flags(namespace: str):
         # Update flags for both modes
         for i in range(len(_update_flags[namespace])):
             _update_flags[namespace][i].value = False
+
+def get_pipeline_status_lock(enable_logging: bool = False) -> UnifiedLock:
+    """return unified storage lock for data consistency"""
+    async_lock = _async_locks.get("pipeline_status_lock") if _is_multiprocess else None
+    return UnifiedLock(
+        lock=_pipeline_status_lock,
+        is_async=not _is_multiprocess,
+        name="pipeline_status_lock",
+        enable_logging=enable_logging,
+        async_lock=async_lock,
+    )
+
+
+def get_graph_db_lock(enable_logging: bool = False) -> UnifiedLock:
+    """return unified graph database lock for ensuring atomic operations"""
+    async_lock = _async_locks.get("graph_db_lock") if _is_multiprocess else None
+    return UnifiedLock(
+        lock=_graph_db_lock,
+        is_async=not _is_multiprocess,
+        name="graph_db_lock",
+        enable_logging=enable_logging,
+        async_lock=async_lock,
+    )
 
 
 async def get_all_update_flags_status() -> Dict[str, list]:

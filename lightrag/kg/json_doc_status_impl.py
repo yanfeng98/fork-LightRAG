@@ -56,6 +56,33 @@ class JsonDocStatusStorage(DocStatusStorage):
         async with self._storage_lock:
             return set(keys) - set(self._data.keys())
 
+    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
+        """
+        Importance notes for in-memory storage:
+        1. Changes will be persisted to disk during the next index_done_callback
+        2. update flags to notify other processes that data persistence is needed
+        """
+        if not data:
+            return
+        logger.debug(f"Inserting {len(data)} records to {self.namespace}")
+        async with self._storage_lock:
+            self._data.update(data)
+            await set_all_update_flags(self.namespace)
+
+        await self.index_done_callback()
+
+    async def index_done_callback(self) -> None:
+        async with self._storage_lock:
+            if self.storage_updated.value:
+                data_dict = (
+                    dict(self._data) if hasattr(self._data, "_getvalue") else self._data
+                )
+                logger.debug(
+                    f"Process {os.getpid()} doc status writting {len(data_dict)} records to {self.namespace}"
+                )
+                write_json(data_dict, self._file_name)
+                await clear_all_update_flags(self.namespace)
+
     async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
         result: list[dict[str, Any]] = []
         async with self._storage_lock:
@@ -95,33 +122,6 @@ class JsonDocStatusStorage(DocStatusStorage):
                         logger.error(f"Missing required field for document {k}: {e}")
                         continue
         return result
-
-    async def index_done_callback(self) -> None:
-        async with self._storage_lock:
-            if self.storage_updated.value:
-                data_dict = (
-                    dict(self._data) if hasattr(self._data, "_getvalue") else self._data
-                )
-                logger.debug(
-                    f"Process {os.getpid()} doc status writting {len(data_dict)} records to {self.namespace}"
-                )
-                write_json(data_dict, self._file_name)
-                await clear_all_update_flags(self.namespace)
-
-    async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
-        """
-        Importance notes for in-memory storage:
-        1. Changes will be persisted to disk during the next index_done_callback
-        2. update flags to notify other processes that data persistence is needed
-        """
-        if not data:
-            return
-        logger.debug(f"Inserting {len(data)} records to {self.namespace}")
-        async with self._storage_lock:
-            self._data.update(data)
-            await set_all_update_flags(self.namespace)
-
-        await self.index_done_callback()
 
     async def get_by_id(self, id: str) -> Union[dict[str, Any], None]:
         async with self._storage_lock:

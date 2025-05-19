@@ -290,6 +290,40 @@ def always_get_an_event_loop() -> asyncio.AbstractEventLoop:
         asyncio.set_event_loop(new_loop)
         return new_loop
 
+def clean_text(text: str) -> str:
+    """Clean text by removing null bytes (0x00) and whitespace
+
+    Args:
+        text: Input text to clean
+
+    Returns:
+        Cleaned text
+    """
+    return text.strip().replace("\x00", "")
+
+def compute_mdhash_id(content: str, prefix: str = "") -> str:
+    """
+    Compute a unique ID for a given content string.
+
+    The ID is a combination of the given prefix and the MD5 hash of the content string.
+    """
+    return prefix + md5(content.encode()).hexdigest()
+
+def get_content_summary(content: str, max_length: int = 250) -> str:
+    """Get summary of document content
+
+    Args:
+        content: Original document content
+        max_length: Maximum length of summary
+
+    Returns:
+        Truncated content with ellipsis if needed
+    """
+    content = content.strip()
+    if len(content) <= max_length:
+        return content
+    return content[:max_length] + "..."
+
 statistic_data = {"llm_call": 0, "llm_cache": 0, "embed_call": 0}
 
 # Initialize logger
@@ -440,16 +474,6 @@ def compute_args_hash(*args: Any, cache_type: str | None = None) -> str:
 
     # Compute MD5 hash
     return hashlib.md5(args_str.encode()).hexdigest()
-
-
-def compute_mdhash_id(content: str, prefix: str = "") -> str:
-    """
-    Compute a unique ID for a given content string.
-
-    The ID is a combination of the given prefix and the MD5 hash of the content string.
-    """
-    return prefix + md5(content.encode()).hexdigest()
-
 
 # Custom exception class
 class QueueFullError(Exception):
@@ -1600,23 +1624,6 @@ async def use_llm_func_with_cache(
     logger.info(f"Call LLM function with query text lenght: {len(input_text)}")
     return await use_llm_func(input_text, **kwargs)
 
-
-def get_content_summary(content: str, max_length: int = 250) -> str:
-    """Get summary of document content
-
-    Args:
-        content: Original document content
-        max_length: Maximum length of summary
-
-    Returns:
-        Truncated content with ellipsis if needed
-    """
-    content = content.strip()
-    if len(content) <= max_length:
-        return content
-    return content[:max_length] + "..."
-
-
 def normalize_extracted_info(name: str, is_entity=False) -> str:
     """Normalize entity/relation names and description with the following rules:
     1. Remove spaces between Chinese characters
@@ -1669,18 +1676,6 @@ def normalize_extracted_info(name: str, is_entity=False) -> str:
         name = re.sub(r"(?<=[\u4e00-\u9fa5])['\"]+", "", name)
 
     return name
-
-
-def clean_text(text: str) -> str:
-    """Clean text by removing null bytes (0x00) and whitespace
-
-    Args:
-        text: Input text to clean
-
-    Returns:
-        Cleaned text
-    """
-    return text.strip().replace("\x00", "")
 
 class TokenTracker:
     """Track token usage for LLM calls."""

@@ -424,7 +424,7 @@ class LightRAG:
         import_path = STORAGES[storage_name]
         storage_class = lazy_external_import(import_path, storage_name)
         return storage_class
-    
+
     def _run_async_safely(self, async_func, action_name=""):
         """Safely execute an async function, avoiding event loop conflicts."""
         try:
@@ -466,6 +466,153 @@ class LightRAG:
 
             self._storages_status = StoragesStatus.INITIALIZED
             logger.debug("Initialized Storages")
+
+    async def ainsert(
+        self,
+        input: str | list[str],
+        split_by_character: str | None = None,
+        split_by_character_only: bool = False,
+        ids: str | list[str] | None = None,
+        file_paths: str | list[str] | None = None,
+    ) -> None:
+        """Async Insert documents with checkpoint support
+
+        Args:
+            input: Single document string or list of document strings
+            split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
+            chunk_token_size, it will be split again by token size.
+            split_by_character_only: if split_by_character_only is True, split the string by character only, when
+            split_by_character is None, this parameter is ignored.
+            ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
+            file_paths: list of file paths corresponding to each document, used for citation
+        """
+        await self.apipeline_enqueue_documents(input, ids, file_paths)
+        await self.apipeline_process_enqueue_documents(
+            split_by_character, split_by_character_only
+        )
+
+    async def apipeline_enqueue_documents(
+        self,
+        input: str | list[str],
+        ids: list[str] | None = None,
+        file_paths: str | list[str] | None = None,
+    ) -> None:
+        """
+        Pipeline for Processing Documents
+
+        1. Validate ids if provided or generate MD5 hash IDs
+        2. Remove duplicate contents
+        3. Generate document initial status
+        4. Filter out already processed documents
+        5. Enqueue document in status
+
+        Args:
+            input: Single document string or list of document strings
+            ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
+            file_paths: list of file paths corresponding to each document, used for citation
+        """
+        if isinstance(input, str):
+            input = [input]
+        if isinstance(ids, str):
+            ids = [ids]
+        if isinstance(file_paths, str):
+            file_paths = [file_paths]
+
+        # If file_paths is provided, ensure it matches the number of documents
+        if file_paths is not None:
+            if len(file_paths) != len(input):
+                raise ValueError(
+                    "Number of file paths must match the number of documents"
+                )
+        else:
+            # If no file paths provided, use placeholder
+            file_paths = ["unknown_source"] * len(input)
+
+        # 1. Validate ids if provided or generate MD5 hash IDs
+        if ids is not None:
+            # Check if the number of IDs matches the number of documents
+            if len(ids) != len(input):
+                raise ValueError("Number of IDs must match the number of documents")
+
+            # Check if IDs are unique
+            if len(ids) != len(set(ids)):
+                raise ValueError("IDs must be unique")
+
+            # Generate contents dict of IDs provided by user and documents
+            contents = {
+                id_: {"content": doc, "file_path": path}
+                for id_, doc, path in zip(ids, input, file_paths)
+            }
+        else:
+            # Clean input text and remove duplicates
+            cleaned_input = [
+                (clean_text(doc), path) for doc, path in zip(input, file_paths)
+            ]
+            unique_content_with_paths = {}
+
+            # Keep track of unique content and their paths
+            for content, path in cleaned_input:
+                if content not in unique_content_with_paths:
+                    unique_content_with_paths[content] = path
+
+            # Generate contents dict of MD5 hash IDs and documents with paths
+            contents = {
+                compute_mdhash_id(content, prefix="doc-"): {
+                    "content": content,
+                    "file_path": path,
+                }
+                for content, path in unique_content_with_paths.items()
+            }
+
+        # 2. Remove duplicate contents
+        unique_contents = {}
+        for id_, content_data in contents.items():
+            content = content_data["content"]
+            file_path = content_data["file_path"]
+            if content not in unique_contents:
+                unique_contents[content] = (id_, file_path)
+
+        # Reconstruct contents with unique content
+        contents = {
+            id_: {"content": content, "file_path": file_path}
+            for content, (id_, file_path) in unique_contents.items()
+        }
+
+        # 3. Generate document initial status
+        new_docs: dict[str, Any] = {
+            id_: {
+                "status": DocStatus.PENDING,
+                "content": content_data["content"],
+                "content_summary": get_content_summary(content_data["content"]),
+                "content_length": len(content_data["content"]),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "file_path": content_data["file_path"],
+            }
+            for id_, content_data in contents.items()
+        }
+
+        # 4. Filter out already processed documents
+        # Get docs ids
+        all_new_doc_ids = set(new_docs.keys())
+        # Exclude IDs of documents that are already in progress
+        unique_new_doc_ids = await self.doc_status.filter_keys(all_new_doc_ids)
+
+        # Filter new_docs to only include documents with unique IDs
+        new_docs = {
+            doc_id: new_docs[doc_id]
+            for doc_id in unique_new_doc_ids
+            if doc_id in new_docs
+        }
+
+        if not new_docs:
+            logger.info("No new unique documents were found.")
+            return
+
+        # 5. Store status document
+        await self.doc_status.upsert(new_docs)
+        logger.info(f"Stored {len(new_docs)} new unique documents")
+
 
     def __del__(self):
         if self.auto_manage_storages_states:
@@ -545,30 +692,6 @@ class LightRAG:
             )
         )
 
-    async def ainsert(
-        self,
-        input: str | list[str],
-        split_by_character: str | None = None,
-        split_by_character_only: bool = False,
-        ids: str | list[str] | None = None,
-        file_paths: str | list[str] | None = None,
-    ) -> None:
-        """Async Insert documents with checkpoint support
-
-        Args:
-            input: Single document string or list of document strings
-            split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
-            chunk_token_size, it will be split again by token size.
-            split_by_character_only: if split_by_character_only is True, split the string by character only, when
-            split_by_character is None, this parameter is ignored.
-            ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
-            file_paths: list of file paths corresponding to each document, used for citation
-        """
-        await self.apipeline_enqueue_documents(input, ids, file_paths)
-        await self.apipeline_process_enqueue_documents(
-            split_by_character, split_by_character_only
-        )
-
     # TODO: deprecated, use insert instead
     def insert_custom_chunks(
         self,
@@ -640,143 +763,6 @@ class LightRAG:
         finally:
             if update_storage:
                 await self._insert_done()
-
-    async def apipeline_enqueue_documents(
-        self,
-        input: str | list[str],
-        ids: list[str] | None = None,
-        file_paths: str | list[str] | None = None,
-    ) -> None:
-        """
-        Pipeline for Processing Documents
-
-        1. Validate ids if provided or generate MD5 hash IDs
-        2. Remove duplicate contents
-        3. Generate document initial status
-        4. Filter out already processed documents
-        5. Enqueue document in status
-
-        Args:
-            input: Single document string or list of document strings
-            ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
-            file_paths: list of file paths corresponding to each document, used for citation
-        """
-        if isinstance(input, str):
-            input = [input]
-        if isinstance(ids, str):
-            ids = [ids]
-        if isinstance(file_paths, str):
-            file_paths = [file_paths]
-
-        # If file_paths is provided, ensure it matches the number of documents
-        if file_paths is not None:
-            if isinstance(file_paths, str):
-                file_paths = [file_paths]
-            if len(file_paths) != len(input):
-                raise ValueError(
-                    "Number of file paths must match the number of documents"
-                )
-        else:
-            # If no file paths provided, use placeholder
-            file_paths = ["unknown_source"] * len(input)
-
-        # 1. Validate ids if provided or generate MD5 hash IDs
-        if ids is not None:
-            # Check if the number of IDs matches the number of documents
-            if len(ids) != len(input):
-                raise ValueError("Number of IDs must match the number of documents")
-
-            # Check if IDs are unique
-            if len(ids) != len(set(ids)):
-                raise ValueError("IDs must be unique")
-
-            # Generate contents dict of IDs provided by user and documents
-            contents = {
-                id_: {"content": doc, "file_path": path}
-                for id_, doc, path in zip(ids, input, file_paths)
-            }
-        else:
-            # Clean input text and remove duplicates
-            cleaned_input = [
-                (clean_text(doc), path) for doc, path in zip(input, file_paths)
-            ]
-            unique_content_with_paths = {}
-
-            # Keep track of unique content and their paths
-            for content, path in cleaned_input:
-                if content not in unique_content_with_paths:
-                    unique_content_with_paths[content] = path
-
-            # Generate contents dict of MD5 hash IDs and documents with paths
-            contents = {
-                compute_mdhash_id(content, prefix="doc-"): {
-                    "content": content,
-                    "file_path": path,
-                }
-                for content, path in unique_content_with_paths.items()
-            }
-
-        # 2. Remove duplicate contents
-        unique_contents = {}
-        for id_, content_data in contents.items():
-            content = content_data["content"]
-            file_path = content_data["file_path"]
-            if content not in unique_contents:
-                unique_contents[content] = (id_, file_path)
-
-        # Reconstruct contents with unique content
-        contents = {
-            id_: {"content": content, "file_path": file_path}
-            for content, (id_, file_path) in unique_contents.items()
-        }
-
-        # 3. Generate document initial status
-        new_docs: dict[str, Any] = {
-            id_: {
-                "status": DocStatus.PENDING,
-                "content": content_data["content"],
-                "content_summary": get_content_summary(content_data["content"]),
-                "content_length": len(content_data["content"]),
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-                "file_path": content_data[
-                    "file_path"
-                ],  # Store file path in document status
-            }
-            for id_, content_data in contents.items()
-        }
-
-        # 4. Filter out already processed documents
-        # Get docs ids
-        all_new_doc_ids = set(new_docs.keys())
-        # Exclude IDs of documents that are already in progress
-        unique_new_doc_ids = await self.doc_status.filter_keys(all_new_doc_ids)
-
-        # Log ignored document IDs
-        ignored_ids = [
-            doc_id for doc_id in unique_new_doc_ids if doc_id not in new_docs
-        ]
-        if ignored_ids:
-            logger.warning(
-                f"Ignoring {len(ignored_ids)} document IDs not found in new_docs"
-            )
-            for doc_id in ignored_ids:
-                logger.warning(f"Ignored document ID: {doc_id}")
-
-        # Filter new_docs to only include documents with unique IDs
-        new_docs = {
-            doc_id: new_docs[doc_id]
-            for doc_id in unique_new_doc_ids
-            if doc_id in new_docs
-        }
-
-        if not new_docs:
-            logger.info("No new unique documents were found.")
-            return
-
-        # 5. Store status document
-        await self.doc_status.upsert(new_docs)
-        logger.info(f"Stored {len(new_docs)} new unique documents")
 
     async def apipeline_process_enqueue_documents(
         self,

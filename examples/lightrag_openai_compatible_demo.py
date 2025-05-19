@@ -2,6 +2,7 @@ import os
 import asyncio
 import inspect
 import logging
+import numpy as np
 import logging.config
 from lightrag import LightRAG, QueryParam
 from lightrag.llm.openai import openai_complete_if_cache
@@ -94,6 +95,12 @@ async def llm_model_func(
         **kwargs,
     )
 
+async def embedding_func(texts: list[str]) -> np.ndarray:
+    return await ollama_embed(
+        texts,
+        embed_model=os.getenv("EMBEDDING_MODEL", "nomic-embed-text:latest"),
+        host=os.getenv("EMBEDDING_BINDING_HOST", "http://localhost:11434"),
+    )
 
 async def print_stream(stream):
     async for chunk in stream:
@@ -102,17 +109,24 @@ async def print_stream(stream):
 
 
 async def initialize_rag():
+
+    # Test embedding function
+    test_text: list[str] = ["This is a test string for embedding."]
+    embedding: np.ndarray = await embedding_func(test_text)
+    embedding_dim: int = embedding.shape[1]
+    print("\n=======================")
+    print("Test embedding function")
+    print("========================")
+    print(f"Test dict: {test_text}")
+    print(f"Detected embedding dimension: {embedding_dim}\n\n")
+
     rag = LightRAG(
         working_dir=WORKING_DIR,
         llm_model_func=llm_model_func,
         embedding_func=EmbeddingFunc(
-            embedding_dim=int(os.getenv("EMBEDDING_DIM", "768")),
+            embedding_dim=embedding_dim,
             max_token_size=int(os.getenv("MAX_EMBED_TOKENS", "8192")),
-            func=lambda texts: ollama_embed(
-                texts,
-                embed_model=os.getenv("EMBEDDING_MODEL", "nomic-embed-text:latest"),
-                host=os.getenv("EMBEDDING_BINDING_HOST", "http://localhost:11434"),
-            ),
+            func=embedding_func
         ),
     )
 
@@ -143,16 +157,6 @@ async def main():
 
         # Initialize RAG instance
         rag = await initialize_rag()
-
-        # Test embedding function
-        test_text = ["This is a test string for embedding."]
-        embedding = await rag.embedding_func(test_text)
-        embedding_dim = embedding.shape[1]
-        print("\n=======================")
-        print("Test embedding function")
-        print("========================")
-        print(f"Test dict: {test_text}")
-        print(f"Detected embedding dimension: {embedding_dim}\n\n")
 
         with open("./book.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())

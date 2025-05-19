@@ -26,7 +26,9 @@ uv pip install ollama nano_vectordb
 lightrag-server
 ```
 
-### Install LightRAG Server
+```bash
+uv pip uninstall lightrag-hku
+```
 
 * Launching the LightRAG Server with Docker Compose
 
